@@ -1,7 +1,7 @@
 package com.example.handwritingrecog;
 public class DTWRecogniser {
 
-	public static double DTWDistance(float[] input,float[] meanVector,String Class,String filename)
+	public static double DTWDistance(float[] input,float[] meanVector)
 	{
 		int n=(input.length/2);
 		int m=(meanVector.length/2);
