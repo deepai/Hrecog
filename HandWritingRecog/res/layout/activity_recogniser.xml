@@ -9,7 +9,7 @@
             android:layout_width="844dp"
             android:layout_height="match_parent"
             android:layout_weight="0.77"
-            android:fadeOffset="500"
+            android:fadeOffset="1000"
             android:gestureStrokeType="multiple" >
 
         </android.gesture.GestureOverlayView>

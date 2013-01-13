@@ -27,8 +27,8 @@ public class Recogniser extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recogniser);
         try {
-    		Strokes=utils.Strokesloader.loadStrokes("/mnt/sdcard/outputMean.dat");
-    		LutMatcher=new CharLUT(utils.Strokesloader.loadForwardLUT("/mnt/sdcard/Lutforward.dat"));
+    		Strokes=utils.Strokesloader.loadStrokes("/mnt/sdcard/outputMeanHash.dat");
+    		LutMatcher=new CharLUT(utils.Strokesloader.loadForwardLUT("/mnt/sdcard/LUTforward.dat"));
     		//Toast.makeText(getApplicationContext(), Strokes.size(),Toast.LENGTH_SHORT).show();
     	} catch (Exception e1) {
     		// TODO Auto-generated catch block
