@@ -2,6 +2,7 @@ package com.example.handwritingrecog;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Set;
 
 import com.example.handwritingrecog.DTWRecogniser;
@@ -64,27 +65,32 @@ public class Recogniser extends Activity {
 		protected String doInBackground(ArrayList<float[]>... params) {
 			
 			String finalCharacterClass=null;
-		  ArrayList<String> RecognizedStrokes=new ArrayList<String>(params[0].size());
+		  String[] RecognizedStrokes=new String[params[0].size()];
 		  Set<String> libraryClassesKeys=Strokes.keySet(); //obtain the keys
+		
 		  
 		  for(int i=0;i<params[0].size();i++)
 		  {
 			 double minValue=Double.MAX_VALUE;
 			 String ClassRecognizedMin = null;
-			 for(String tempClass:libraryClassesKeys)
+			  Iterator<String> key=libraryClassesKeys.iterator();
+			while(key.hasNext())
 			 {
+				String tempClass=key.next();
 				 double score=DTWRecogniser.DTWDistance(params[0].get(i),Strokes.get(tempClass));
 				 if(minValue>score)
 				 {
 					 minValue=score; //set as minimum score
 					 ClassRecognizedMin=tempClass; //set as minimum Score corresponding class
 				 }
-				 RecognizedStrokes.add(ClassRecognizedMin);	
-				 finalCharacterClass=LutMatcher.getValue(RecognizedStrokes);
+				
 			 }
-		  }
+			 RecognizedStrokes[i]=ClassRecognizedMin;
 			
-			return finalCharacterClass;
+		  }
+		  finalCharacterClass=LutMatcher.getValue(RecognizedStrokes)+":"+RecognizedStrokes.toString();
+		 // finalCharacterClass=RecognizedStrokes.toString();
+		  return finalCharacterClass;
 		}
 		@Override
 		protected void onPostExecute(String result) {

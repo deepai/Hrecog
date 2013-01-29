@@ -1,7 +1,9 @@
 package com.example.handwritingrecog;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 
 
@@ -26,14 +28,16 @@ public class CharLUT
 	 * @param ArrayList<String> stroke_seq
 	 * @return String character class
 	 */
-	public String getValue(ArrayList<String> stroke_seq)
+	public String getValue(String[] stroke_seq)
 	{
-		Collections.sort(stroke_seq);
-		String arr = (String) stroke_seq.toString();
-		String key_string = arr.replaceAll("(^\\[|\\]$)", "").replace(", ", " ");
-		strokeSeq = key_string;
-		charClass = LUTforward.get(key_string);
-		return charClass;
+			Arrays.sort(stroke_seq,new compare());
+			String s=" ";
+			for(int i=0;i<stroke_seq.length;i++)
+			{
+				s+= (stroke_seq[i]+" ");
+			}
+			return (LUTforward.get(s.trim()));			
+
 	}
 	
 	/**
@@ -43,6 +47,19 @@ public class CharLUT
 	public void setCorrectCharClass(String correctClass)
 	{
 		correctedCharClass = correctClass;
+	}
+	class compare implements Comparator<String>
+	{
+
+		@Override
+		public int compare(String arg0, String arg1) {
+			// TODO Auto-generated method stub
+			if(Integer.parseInt(arg0)<Integer.parseInt(arg1))
+				return -1;
+			else
+				return 1;
+		}
+		
 	}
 	
 }
