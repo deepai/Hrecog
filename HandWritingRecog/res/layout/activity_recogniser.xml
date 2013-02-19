@@ -17,10 +17,7 @@
                 android:background="#ffffff"
                 android:ems="10"
                 android:inputType="textMultiLine"
-                android:singleLine="true" >
-
-                <requestFocus />
-            </EditText>
+                android:singleLine="true" />
 
             <EditText
                 android:id="@+id/editText2"
@@ -33,13 +30,19 @@
                 android:textColor="#ffffff" />
 
             <Button
+                android:id="@+id/button2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Combine"
+                android:textColor="#ffffff" />
+
+            <Button
                 android:id="@+id/button1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.24"
-                android:text="SMS" 
-                android:textColor="#ffffff"/>
-
+                android:layout_weight="0.07"
+                android:text="SMS"
+                android:textColor="#ffffff" />
         </LinearLayout>
 
         <LinearLayout
@@ -49,8 +52,11 @@
 
             <android.gesture.GestureOverlayView
                 android:id="@+id/gestureOverlayView1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" >
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fadeOffset="1000"
+                android:gestureStrokeType="multiple" >
+
             </android.gesture.GestureOverlayView>
 
         </LinearLayout>

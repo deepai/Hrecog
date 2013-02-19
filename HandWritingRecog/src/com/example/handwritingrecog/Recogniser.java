@@ -31,6 +31,7 @@ public class Recogniser extends Activity {
 	Button SendSMS;
 	EditText PhoneEntry;
 	EditText TextArea;
+	Button combinecharacter;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -38,7 +39,7 @@ public class Recogniser extends Activity {
         setContentView(R.layout.activity_recogniser);
         try {
     		Strokes=utils.Strokesloader.loadStrokes("/mnt/sdcard/outputMeanHash.dat");
-    		LutMatcher=new CharLUT(utils.Strokesloader.loadForwardLUT("/mnt/sdcard/LUTforward.dat"));
+    		LutMatcher=new CharLUT(utils.Strokesloader.loadForwardLUT("/mnt/sdcard/LutLex.dat"));
     		uniVals=character.initvalue(); //load the character map
     		//Toast.makeText(getApplicationContext(), Strokes.size(),Toast.LENGTH_SHORT).show();
     	} catch (Exception e1) {
@@ -48,6 +49,7 @@ public class Recogniser extends Activity {
         PhoneEntry = (EditText) findViewById(R.id.editText2);
         SendSMS=(Button) findViewById(R.id.button1);
         TextArea=(EditText) findViewById(R.id.editText1);
+        TextArea.setText("\u0985"+","+"\u0987"+"\u0987");
         
         SendSMS.setOnClickListener(new OnClickListener() {
 			
@@ -91,6 +93,22 @@ public class Recogniser extends Activity {
 			}
 		});
         
+        combinecharacter=(Button) findViewById(R.id.button2);
+        combinecharacter.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub
+				int start=TextArea.getSelectionStart();
+				int end=TextArea.getSelectionEnd();
+				String toCombine=TextArea.getText().toString().substring(start, end);
+				String finalString=character.combineChar(toCombine);
+				String newString=TextArea.getText().toString().substring(0,start);
+				newString+=finalString;
+				TextArea.setText(newString);				
+			}
+		});
+        
     }
     class performRecognition extends AsyncTask<ArrayList<float[]>,Void,String>
     {
@@ -123,6 +141,7 @@ public class Recogniser extends Activity {
 			
 		  }
 		  finalCharacterClass=LutMatcher.getValue(RecognizedStrokes)+":"+RecognizedStrokes.toString();
+		  
 		 // finalCharacterClass=RecognizedStrokes.toString();
 		  return finalCharacterClass;
 		}
@@ -130,7 +149,10 @@ public class Recogniser extends Activity {
 		protected void onPostExecute(String result) {
 			// TODO Auto-generated method stub
 			super.onPostExecute(result);
-			TextArea.setText(uniVals.get(result));
+			if(uniVals.get(result)==null)
+				TextArea.setText("null");
+			else
+				TextArea.setText(result);
 		}
     	
     }

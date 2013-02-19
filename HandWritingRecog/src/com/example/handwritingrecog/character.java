@@ -68,5 +68,15 @@ public class character {
 	        uniVals.put("59","\u09D7");
 	        return uniVals;
 	    }
-	
+	public static String combineChar(String str)
+	{
+		String combined = "";
+		for(int i=0; i< str.length(); i++)
+		{
+			combined += str.charAt(i);
+			if(i < str.length() - 1)
+				combined += "\u09CD";
+		}
+		return combined;
+	}
 }
