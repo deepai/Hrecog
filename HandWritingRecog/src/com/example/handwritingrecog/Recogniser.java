@@ -1,6 +1,7 @@
 package com.example.handwritingrecog;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
@@ -15,11 +16,13 @@ import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
+import android.widget.AdapterView.OnItemClickListener;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -63,7 +66,7 @@ public class Recogniser extends Activity {
         SendSMS=(Button) findViewById(R.id.button1);
         Reload=(Button) findViewById(R.id.button3);
         TextArea=(EditText) findViewById(R.id.editText1);
-        //TextArea.setText("\u0985"+","+"\u0987"+"\u0987");
+        TextArea.setText("\u0985"+","+"\u0987"+"\u0987");
         charchoiceAdapt= new ArrayAdapter<String>(getApplicationContext(),R.layout.listview,charchoices);
         charchoice=(ListView) findViewById(R.id.listView1);
         charchoice.setAdapter(charchoiceAdapt);
@@ -72,8 +75,29 @@ public class Recogniser extends Activity {
         {
         	charchoices.add(uniVals.get(s));
         }
-        
+        Collections.sort(charchoices);
         charchoiceAdapt.notifyDataSetChanged();
+        
+        
+        /*
+         * RELOAD THE LUT AND STROKE FILES;
+         */
+        charchoice.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+					long arg3) {
+				// TODO Auto-generated method stub
+				
+				String value=charchoices.get(arg2);
+				String previoustext=TextArea.getText().toString();
+				previoustext+=value;
+				TextArea.setText(previoustext);
+				
+			}
+        	
+		});
+        
         
         Reload.setOnClickListener(new OnClickListener() {
 			
@@ -99,6 +123,10 @@ public class Recogniser extends Activity {
 			@Override
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub	
+				
+				/*
+				 * DISPLAY SMS AND EMAIL OPTIONS
+				 */
 	            
 				AlertDialog.Builder builder = new AlertDialog.Builder(context);
 	            builder.setMessage("SMS or EMAIL?")
@@ -175,13 +203,7 @@ public class Recogniser extends Activity {
 			@Override
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
-				int start=TextArea.getSelectionStart();
-				int end=TextArea.getSelectionEnd();
-				String toCombine=TextArea.getText().toString().substring(start, end);
-				String finalString=character.combineChar(toCombine);
-				String newString=TextArea.getText().toString().substring(0,start);
-				newString+=finalString;
-				TextArea.setText(newString);				
+						
 			}
 		});
         
@@ -226,7 +248,9 @@ public class Recogniser extends Activity {
 			// TODO Auto-generated method stub
 			super.onPostExecute(result);
 			
-				TextArea.setText(uniVals.get(LutMatcher.LUTforward.get(result)));
+				String previoustext=TextArea.getText().toString();
+				previoustext+=uniVals.get(LutMatcher.LUTforward.get(result));
+				TextArea.setText(previoustext);
 				Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT).show(); 
 		}
     	

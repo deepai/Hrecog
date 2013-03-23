@@ -23,6 +23,7 @@ public class CharLUT
 	{
 		LUTforward = LUTfwd;
 	}
+
 	
 	/**
 	 * @param ArrayList<String> stroke_seq
@@ -51,7 +52,7 @@ public class CharLUT
 				}
 				s+=" ";
 			}
-			return (s.trim());			
+			return (arrange(s.trim()));			
 
 	}
 	
@@ -62,6 +63,17 @@ public class CharLUT
 	public void setCorrectCharClass(String correctClass)
 	{
 		correctedCharClass = correctClass;
+	}
+	public String arrange(String input)
+	{
+				String[] tempStringArray=input.split(" ");
+				Arrays.sort(tempStringArray);
+				String tempString="";
+				for(String t:tempStringArray)
+				{
+					tempString+=t+" ";
+				}
+				return tempString.trim();
 	}
 	
 }
