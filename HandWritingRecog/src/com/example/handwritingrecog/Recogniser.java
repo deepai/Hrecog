@@ -12,6 +12,7 @@ import preprocessing.smoothing;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.telephony.SmsManager;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
@@ -20,6 +21,10 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.gesture.Gesture;
 import android.gesture.GestureOverlayView;
@@ -39,6 +44,7 @@ public class Recogniser extends Activity {
 	ListView charchoice;
 	ArrayAdapter<String> charchoiceAdapt;
 	ArrayList<String> charchoices=new ArrayList<String>();	
+	final Context context = this;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,6 +83,7 @@ public class Recogniser extends Activity {
 				Strokes=null;
 				try {
 					Strokes=utils.Strokesloader.loadStrokes("/mnt/sdcard/Library.dat");
+					LutMatcher=new CharLUT(utils.Strokesloader.loadForwardLUT("/mnt/sdcard/LutLex.dat"));
 					Toast.makeText(getApplicationContext(),"reload successfull", Toast.LENGTH_SHORT).show();
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
@@ -91,36 +98,52 @@ public class Recogniser extends Activity {
 			
 			@Override
 			public void onClick(View arg0) {
-				// TODO Auto-generated method stub
-				/*
-				String message=TextArea.getText().toString();
-				String PhoneNumber=PhoneEntry.getText().toString();
-				
-				if((PhoneNumber.equals("")||PhoneNumber==null))
-				{
-					Toast.makeText(getApplicationContext(),"No Phone Number Given",Toast.LENGTH_SHORT).show();
-				}
-				else
-				{
-					SmsManager smsManager = SmsManager.getDefault();
-					smsManager.sendTextMessage(PhoneNumber, null, message, null, null);
-					Toast.makeText(getApplicationContext(),"sent successfully",Toast.LENGTH_SHORT).show();
-				}
-				*/
-				/*this part for email
-				 */
-				 //TODO Auto-generated method stub
-	            Intent email = new Intent(android.content.Intent.ACTION_SEND);
+				// TODO Auto-generated method stub	
+	            
+				AlertDialog.Builder builder = new AlertDialog.Builder(context);
+	            builder.setMessage("SMS or EMAIL?")
+	            .setTitle("CHOOSE WINDOW");
+	            builder.setPositiveButton("SMS", new DialogInterface.OnClickListener() {
+	                public void onClick(DialogInterface dialog, int id) {
+	                    // User clicked OK button
+	                	String message=TextArea.getText().toString();
+	    				String PhoneNumber=PhoneEntry.getText().toString();
+	    				
+	    				if((PhoneNumber.equals("")||PhoneNumber==null))
+	    				{
+	    					Toast.makeText(getApplicationContext(),"No Phone Number Given",Toast.LENGTH_SHORT).show();
+	    				}
+	    				else
+	    				{
+	    					SmsManager smsManager = SmsManager.getDefault();
+	    					smsManager.sendTextMessage(PhoneNumber, null, message, null, null);
+	    					Toast.makeText(getApplicationContext(),"sent successfully",Toast.LENGTH_SHORT).show();
+	    				}
+	                }
+	            });
+	            builder.setNegativeButton("EMAIL", new DialogInterface.OnClickListener() {
+	                public void onClick(DialogInterface dialog, int id) {
+	                
+	    				/*this part for email
+	    				 */
+	    				 //TODO Auto-generated method stub
+	    	            Intent email = new Intent(android.content.Intent.ACTION_SEND);
 
-	            /* Fill it with Data */
-	            email.setType("plain/text");
-	            email.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{"deepai.dutta@gmail.com"});
-	            email.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{"arunirc@gmail.com"});
-	            email.putExtra(android.content.Intent.EXTRA_SUBJECT, "Test");
-	            email.putExtra(android.content.Intent.EXTRA_TEXT,TextArea.getText().toString());
+	    	            /* Fill it with Data */
+	    	            email.setType("plain/text");
+	    	            email.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{"deepai.dutta@gmail.com"});
+	    	            
+	    	            email.putExtra(android.content.Intent.EXTRA_SUBJECT, "Test");
+	    	            email.putExtra(android.content.Intent.EXTRA_TEXT,TextArea.getText().toString());
 
-	            /* Send it off to the Activity-Chooser */
-	            startActivity(Intent.createChooser(email, "Send mail..."));
+	    	            /* Send it off to the Activity-Chooser */
+	    	            startActivity(Intent.createChooser(email, "Send mail..."));
+	                }
+	            });
+
+	            AlertDialog dialog = builder.create();
+	            dialog.show();
+
 			}
 		});
         
