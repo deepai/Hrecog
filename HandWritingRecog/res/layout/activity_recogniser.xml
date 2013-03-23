@@ -13,7 +13,7 @@
                 android:id="@+id/editText1"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_weight="0.95"
+                android:layout_weight="0.56"
                 android:background="#ffffff"
                 android:ems="10"
                 android:inputType="textMultiLine"
@@ -23,7 +23,7 @@
                 android:id="@+id/editText2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.25"
+                android:layout_weight="0.11"
                 android:ems="10"
                 android:hint="Enter Number"
                 android:inputType="phone"
@@ -41,8 +41,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.07"
-                android:text="SMS"
+                android:text="SMS/EMAIL"
                 android:textColor="#ffffff" />
+
+            <Button
+                android:id="@+id/button3"
+                android:layout_width="70dp"
+                android:layout_height="wrap_content"
+                android:text="R"
+                android:textColor="#ffffff" />
+
         </LinearLayout>
 
         <LinearLayout
@@ -50,14 +58,27 @@
             android:layout_height="match_parent"
             android:orientation="vertical" >
 
-            <android.gesture.GestureOverlayView
-                android:id="@+id/gestureOverlayView1"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:fadeOffset="1000"
-                android:gestureStrokeType="multiple" >
+                android:layout_height="match_parent" >
 
-            </android.gesture.GestureOverlayView>
+                <android.gesture.GestureOverlayView
+                    android:id="@+id/gestureOverlayView1"
+                    android:layout_width="1199dp"
+                    android:layout_height="match_parent"
+                    android:fadeOffset="1000"
+                    android:gestureStrokeType="multiple" >
+
+                </android.gesture.GestureOverlayView>
+
+                <ListView
+                    android:id="@+id/listView1"
+                    android:layout_width="64dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" >
+                </ListView>
+
+            </LinearLayout>
 
         </LinearLayout>
 

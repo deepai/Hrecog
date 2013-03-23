@@ -9,7 +9,7 @@ import java.util.HashMap;
 
 public class CharLUT
 {
-	HashMap<String,String> LUTforward;
+	public HashMap<String,String> LUTforward;
 	String strokeSeq;
 	String charClass;
 	String correctedCharClass;
@@ -28,15 +28,30 @@ public class CharLUT
 	 * @param ArrayList<String> stroke_seq
 	 * @return String character class
 	 */
-	public String getValue(String[] stroke_seq)
+	public String getValue(String[] stroke_seq) 
 	{
-			Arrays.sort(stroke_seq,new compare());
+		
+		/*
+		 * //function to get all the numerical value of the Strokes and discard the suffixes
+		 * ex. 2a 3b 4c becomes 2 3 4
+		 */
+			String defaultvalue="";
+			Arrays.sort(stroke_seq);
 			String s=" ";
 			for(int i=0;i<stroke_seq.length;i++)
 			{
-				s+= (stroke_seq[i]+" ");
+				
+				String temp=stroke_seq[i];
+				int j=0;
+				while(j<temp.length())
+				{
+					if(Character.isDigit(temp.charAt(j))) //check if the character is a Digit
+						s+=temp.charAt(j);
+					j++;
+				}
+				s+=" ";
 			}
-			return (LUTforward.get(s.trim()));			
+			return (s.trim());			
 
 	}
 	
@@ -47,19 +62,6 @@ public class CharLUT
 	public void setCorrectCharClass(String correctClass)
 	{
 		correctedCharClass = correctClass;
-	}
-	class compare implements Comparator<String>
-	{
-
-		@Override
-		public int compare(String arg0, String arg1) {
-			// TODO Auto-generated method stub
-			if(Integer.parseInt(arg0)<Integer.parseInt(arg1))
-				return -1;
-			else
-				return 1;
-		}
-		
 	}
 	
 }

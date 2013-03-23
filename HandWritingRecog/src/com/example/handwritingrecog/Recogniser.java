@@ -6,18 +6,21 @@ import java.util.Iterator;
 import java.util.Set;
 
 import com.example.handwritingrecog.DTWRecogniser;
+
 import preprocessing.Scaling;
 import preprocessing.smoothing;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.telephony.SmsManager;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Toast;
 import android.app.Activity;
+import android.content.Intent;
 import android.gesture.Gesture;
 import android.gesture.GestureOverlayView;
 import android.gesture.GestureOverlayView.OnGesturePerformedListener;
@@ -32,13 +35,16 @@ public class Recogniser extends Activity {
 	EditText PhoneEntry;
 	EditText TextArea;
 	Button combinecharacter;
-	
+	Button Reload;
+	ListView charchoice;
+	ArrayAdapter<String> charchoiceAdapt;
+	ArrayList<String> charchoices=new ArrayList<String>();	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recogniser);
         try {
-    		Strokes=utils.Strokesloader.loadStrokes("/mnt/sdcard/outputMeanHash.dat");
+    		Strokes=utils.Strokesloader.loadStrokes("/mnt/sdcard/Library.dat");
     		LutMatcher=new CharLUT(utils.Strokesloader.loadForwardLUT("/mnt/sdcard/LutLex.dat"));
     		uniVals=character.initvalue(); //load the character map
     		//Toast.makeText(getApplicationContext(), Strokes.size(),Toast.LENGTH_SHORT).show();
@@ -46,16 +52,47 @@ public class Recogniser extends Activity {
     		// TODO Auto-generated catch block
     		e1.printStackTrace();
     	}
-        PhoneEntry = (EditText) findViewById(R.id.editText2);
+        uniVals=character.initvalue(); //load the character map
+        PhoneEntry = ( EditText) findViewById(R.id.editText2);
         SendSMS=(Button) findViewById(R.id.button1);
+        Reload=(Button) findViewById(R.id.button3);
         TextArea=(EditText) findViewById(R.id.editText1);
-        TextArea.setText("\u0985"+","+"\u0987"+"\u0987");
+        //TextArea.setText("\u0985"+","+"\u0987"+"\u0987");
+        charchoiceAdapt= new ArrayAdapter<String>(getApplicationContext(),R.layout.listview,charchoices);
+        charchoice=(ListView) findViewById(R.id.listView1);
+        charchoice.setAdapter(charchoiceAdapt);
+        
+        for(String s:uniVals.keySet()) //store all the unicode into charchoices array
+        {
+        	charchoices.add(uniVals.get(s));
+        }
+        
+        charchoiceAdapt.notifyDataSetChanged();
+        
+        Reload.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub
+				Strokes=null;
+				try {
+					Strokes=utils.Strokesloader.loadStrokes("/mnt/sdcard/Library.dat");
+					Toast.makeText(getApplicationContext(),"reload successfull", Toast.LENGTH_SHORT).show();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					Toast.makeText(getApplicationContext(), "reload failed", Toast.LENGTH_SHORT).show();
+					System.exit(0);
+				}
+				
+			}
+		});
         
         SendSMS.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
+				/*
 				String message=TextArea.getText().toString();
 				String PhoneNumber=PhoneEntry.getText().toString();
 				
@@ -69,6 +106,21 @@ public class Recogniser extends Activity {
 					smsManager.sendTextMessage(PhoneNumber, null, message, null, null);
 					Toast.makeText(getApplicationContext(),"sent successfully",Toast.LENGTH_SHORT).show();
 				}
+				*/
+				/*this part for email
+				 */
+				 //TODO Auto-generated method stub
+	            Intent email = new Intent(android.content.Intent.ACTION_SEND);
+
+	            /* Fill it with Data */
+	            email.setType("plain/text");
+	            email.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{"deepai.dutta@gmail.com"});
+	            email.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{"arunirc@gmail.com"});
+	            email.putExtra(android.content.Intent.EXTRA_SUBJECT, "Test");
+	            email.putExtra(android.content.Intent.EXTRA_TEXT,TextArea.getText().toString());
+
+	            /* Send it off to the Activity-Chooser */
+	            startActivity(Intent.createChooser(email, "Send mail..."));
 			}
 		});
         
@@ -79,7 +131,7 @@ public class Recogniser extends Activity {
 			@Override
 			public void onGesturePerformed(GestureOverlayView arg0, Gesture arg1) {
 				// TODO Auto-generated method stub
-				 
+				
 				ArrayList<float[]> UserDrawnStroke=new ArrayList<float[]>(arg1.getStrokesCount()); //create an arraylist to temporary hold the float arrays
 				for(int i=0;i<arg1.getStrokesCount();i++)
 				{
@@ -87,7 +139,8 @@ public class Recogniser extends Activity {
 					 temp=Scaling.scale(temp); // Apply Scaling
 					 temp=smoothing.smoothFunction(temp); //apply Smoothing 
 					 UserDrawnStroke.add(temp);
-				}				 
+				}
+				 //oast.makeText(getApplicationContext(), UserDrawnStroke.s+"", Toast.LENGTH_SHORT).show();
 				performRecognition Recogniser=new performRecognition();
 				Recogniser.execute(UserDrawnStroke);
 			}
@@ -118,14 +171,14 @@ public class Recogniser extends Activity {
 			
 			String finalCharacterClass=null;
 		  String[] RecognizedStrokes=new String[params[0].size()];
-		  Set<String> libraryClassesKeys=Strokes.keySet(); //obtain the keys
+		  //Set<String> libraryClassesKeys=Strokes.keySet(); //obtain the keys
 		
 		  
 		  for(int i=0;i<params[0].size();i++)
 		  {
 			 double minValue=Double.MAX_VALUE;
 			 String ClassRecognizedMin = null;
-			  Iterator<String> key=libraryClassesKeys.iterator();
+			 Iterator<String> key=Strokes.keySet().iterator();
 			while(key.hasNext())
 			 {
 				String tempClass=key.next();
@@ -140,7 +193,7 @@ public class Recogniser extends Activity {
 			 RecognizedStrokes[i]=ClassRecognizedMin;
 			
 		  }
-		  finalCharacterClass=LutMatcher.getValue(RecognizedStrokes)+":"+RecognizedStrokes.toString();
+		  finalCharacterClass=LutMatcher.getValue(RecognizedStrokes);
 		  
 		 // finalCharacterClass=RecognizedStrokes.toString();
 		  return finalCharacterClass;
@@ -149,10 +202,9 @@ public class Recogniser extends Activity {
 		protected void onPostExecute(String result) {
 			// TODO Auto-generated method stub
 			super.onPostExecute(result);
-			if(uniVals.get(result)==null)
-				TextArea.setText("null");
-			else
-				TextArea.setText(result);
+			
+				TextArea.setText(uniVals.get(LutMatcher.LUTforward.get(result)));
+				Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT).show(); 
 		}
     	
     }
