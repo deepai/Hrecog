@@ -1,9 +1,6 @@
 package com.example.handwritingrecog;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 
 
@@ -36,7 +33,6 @@ public class CharLUT
 		 * //function to get all the numerical value of the Strokes and discard the suffixes
 		 * ex. 2a 3b 4c becomes 2 3 4
 		 */
-			String defaultvalue="";
 			Arrays.sort(stroke_seq);
 			String s=" ";
 			for(int i=0;i<stroke_seq.length;i++)
