@@ -53,22 +53,32 @@ public class Recogniser extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recogniser);
         try {
-    		Strokes=utils.Strokesloader.loadStrokes("/mnt/sdcard/Library.dat");
+     /*****************************LOAD THE LIBRARY FILES*****************************************************/
+    		
+        	Strokes=utils.Strokesloader.loadStrokes("/mnt/sdcard/Library.dat");
     		LutMatcher=new CharLUT(utils.Strokesloader.loadForwardLUT("/mnt/sdcard/LutLex.dat"));
     		uniVals=character.initvalue(); //load the character map
+    
+    		
+    		/*********************************************************************************************************/
     		//Toast.makeText(getApplicationContext(), Strokes.size(),Toast.LENGTH_SHORT).show();
     	} catch (Exception e1) {
     		// TODO Auto-generated catch block
     		e1.printStackTrace();
     	}
-        uniVals=character.initvalue(); //load the character map
+       /************************ATTACH THE UI COMPONENTS*****************************************************/
+       
         PhoneEntry = ( EditText) findViewById(R.id.editText2);
         SendSMS=(Button) findViewById(R.id.button1);
         Reload=(Button) findViewById(R.id.button3);
         TextArea=(EditText) findViewById(R.id.editText1);
-        //TextArea.setText("\u0985"+","+"\u0987"+"\u0987");
-        charchoiceAdapt= new ArrayAdapter<String>(getApplicationContext(),R.layout.listview,charchoices);
+        mv=(GestureOverlayView) findViewById(R.id.gestureOverlayView1);
+        combinecharacter=(Button) findViewById(R.id.button2);
         charchoice=(ListView) findViewById(R.id.listView1);
+        
+        /*********************************************************************************************************/
+        
+        charchoiceAdapt= new ArrayAdapter<String>(getApplicationContext(),R.layout.listview,charchoices);
         charchoice.setAdapter(charchoiceAdapt);
         
         for(String s:uniVals.keySet()) //store all the unicode into charchoices array
@@ -176,7 +186,7 @@ public class Recogniser extends Activity {
 		});
         
         
-        mv=(GestureOverlayView) findViewById(R.id.gestureOverlayView1);
+        
         mv.addOnGesturePerformedListener(new OnGesturePerformedListener() {
 			
 			@Override
@@ -197,7 +207,7 @@ public class Recogniser extends Activity {
 			}
 		});
         
-        combinecharacter=(Button) findViewById(R.id.button2);
+        
         combinecharacter.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -214,6 +224,10 @@ public class Recogniser extends Activity {
 		});
         
     }
+    
+    
+    /************************RECOGNISER CLASS*****************************************************/
+    
     class performRecognition extends AsyncTask<ArrayList<float[]>,Void,String>
     {
 
@@ -250,6 +264,8 @@ public class Recogniser extends Activity {
 		  return finalCharacterClass;
 		}
 		@Override
+		
+		 /************************TJOB TO PERFORM AFTER RECOGNITION*****************************************************/
 		protected void onPostExecute(String result) {
 			// TODO Auto-generated method stub
 			super.onPostExecute(result);
