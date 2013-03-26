@@ -66,7 +66,7 @@ public class Recogniser extends Activity {
         SendSMS=(Button) findViewById(R.id.button1);
         Reload=(Button) findViewById(R.id.button3);
         TextArea=(EditText) findViewById(R.id.editText1);
-        TextArea.setText("\u0985"+","+"\u0987"+"\u0987");
+        //TextArea.setText("\u0985"+","+"\u0987"+"\u0987");
         charchoiceAdapt= new ArrayAdapter<String>(getApplicationContext(),R.layout.listview,charchoices);
         charchoice=(ListView) findViewById(R.id.listView1);
         charchoice.setAdapter(charchoiceAdapt);
@@ -159,9 +159,9 @@ public class Recogniser extends Activity {
 
 	    	            /* Fill it with Data */
 	    	            email.setType("plain/text");
-	    	            email.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{"deepai.dutta@gmail.com"});
+	    	            //email.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{"deepai.dutta@gmail.com"});
 	    	            
-	    	            email.putExtra(android.content.Intent.EXTRA_SUBJECT, "Test");
+	    	            //email.putExtra(android.content.Intent.EXTRA_SUBJECT, "Test");
 	    	            email.putExtra(android.content.Intent.EXTRA_TEXT,TextArea.getText().toString());
 
 	    	            /* Send it off to the Activity-Chooser */
@@ -203,7 +203,13 @@ public class Recogniser extends Activity {
 			@Override
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
-						
+				String temp=TextArea.getText().toString();
+				String toCombine=TextArea.getText().toString().substring(temp.length()-2);
+				String finalString=character.combineChar(toCombine);
+				String newString=TextArea.getText().toString().substring(0,temp.length()-2);
+				newString+=finalString;
+				TextArea.setText(newString);	
+				//Toast.makeText(context,toCombine.length()+"", Toast.LENGTH_SHORT).show();
 			}
 		});
         
