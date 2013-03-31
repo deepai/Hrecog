@@ -47,6 +47,7 @@ public class Recogniser extends Activity {
 	ListView charchoice;
 	ArrayAdapter<String> charchoiceAdapt;
 	ArrayList<String> charchoices=new ArrayList<String>();	
+	ArrayList<float[]> InputCharacter; //to hold the UserInput Character after preprocessing
 	final Context context = this;
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -201,6 +202,7 @@ public class Recogniser extends Activity {
 					 temp=smoothing.smoothFunction(temp); //apply Smoothing 
 					 UserDrawnStroke.add(temp);
 				}
+				InputCharacter=UserDrawnStroke;//store globally;
 				 //oast.makeText(getApplicationContext(), UserDrawnStroke.s+"", Toast.LENGTH_SHORT).show();
 				performRecognition Recogniser=new performRecognition();
 				Recogniser.execute(UserDrawnStroke);
