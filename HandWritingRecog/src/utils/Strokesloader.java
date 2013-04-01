@@ -32,11 +32,11 @@ public class Strokesloader {
 		return readObject;
 	}
 	
-	public static HashMap<String,String> loadbackwardLUT(String filename) throws Exception 
+	public static HashMap<String,ArrayList<String>> loadbackwardLUT(String filename) throws Exception 
 	{
 		ObjectInputStream oin;
 		oin=new ObjectInputStream(new FileInputStream(new File(filename)));
-		HashMap<String,String> readObject = ((HashMap<String,String>) oin.readObject());	
+		HashMap<String,ArrayList<String>> readObject = ((HashMap<String,ArrayList<String>>) oin.readObject());	
 		oin.close();
 		return readObject;
 	}
