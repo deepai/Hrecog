@@ -21,10 +21,12 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -44,10 +46,13 @@ public class Recogniser extends Activity {
 	EditText TextArea;
 	Button combinecharacter;
 	Button Reload;
+	Button userCorrection; 
 	ListView charchoice;
 	ArrayAdapter<String> charchoiceAdapt;
-	ArrayList<String> charchoices=new ArrayList<String>();	
 	ArrayList<float[]> InputCharacter; //to hold the UserInput Character after preprocessing
+	ArrayList<unicodeMapping> Unicodemapper=new ArrayList<unicodeMapping>();
+	Matcher mt=new Matcher(); //matcher class
+	
 	final Context context = this;
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -76,40 +81,20 @@ public class Recogniser extends Activity {
         mv=(GestureOverlayView) findViewById(R.id.gestureOverlayView1);
         combinecharacter=(Button) findViewById(R.id.button2);
         charchoice=(ListView) findViewById(R.id.listView1);
+        userCorrection=(Button) findViewById(R.id.button4);
         
         /*********************************************************************************************************/
         
-        charchoiceAdapt= new ArrayAdapter<String>(getApplicationContext(),R.layout.listview,charchoices);
-        charchoice.setAdapter(charchoiceAdapt);
-        
         for(String s:uniVals.keySet()) //store all the unicode into charchoices array
         {
-        	charchoices.add(uniVals.get(s));
+        	Unicodemapper.add(new unicodeMapping(s, uniVals.get(s)));
+        	
         }
-        Collections.sort(charchoices);
-        charchoiceAdapt.notifyDataSetChanged();
-        
-        
+          
         /*
          * RELOAD THE LUT AND STROKE FILES;
          */
-        charchoice.setOnItemClickListener(new OnItemClickListener() {
 
-			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
-					long arg3) {
-				// TODO Auto-generated method stub
-				
-				String value=charchoices.get(arg2);
-				String previoustext=TextArea.getText().toString();
-				previoustext+=value;
-				TextArea.setText(previoustext);
-				
-			}
-        	
-		});
-        
-        
         Reload.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -224,6 +209,46 @@ public class Recogniser extends Activity {
 				//Toast.makeText(context,toCombine.length()+"", Toast.LENGTH_SHORT).show();
 			}
 		});
+
+        /************************Matcher Dialog*****************************************************/
+        userCorrection.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub
+				 
+		    	    final Dialog dialog = new Dialog(context);
+					dialog.setContentView(R.layout.dialog_unicode);
+					dialog.setTitle("Choose Correct Character.");
+					ListView charchoices=(ListView) dialog.findViewById(R.id.listView1);
+					charchoices.setOnItemClickListener(new OnItemClickListener() {
+
+						@Override
+						public void onItemClick(AdapterView<?> arg0, View arg1,
+								int arg2, long arg3) {
+							// TODO Auto-generated method stub
+							TextView t=(TextView) arg1.findViewById(R.id.text1);
+							String charactername=(String) t.getTag(); //get the tag name
+							//Toast.makeText(context, charactername, Toast.LENGTH_SHORT).show();
+							/*
+							 * Number of Characters found
+							 */
+							ArrayList<String> Charactersequences=mt.NumStrokesSeq(charactername, InputCharacter.size()); //number of Strokes present in the InputCharacter
+							//Toast.makeText(context,temp+"", Toast.LENGTH_SHORT).show();
+							if(Charactersequences.size()==1)
+							{
+								mt.StrokeMatch(Charactersequences.get(0), InputCharacter);
+							}
+						}
+					});
+					customAdapter adapt=new customAdapter(context,R.layout.listview,Unicodemapper); //attach the adapter
+					charchoices.setAdapter(adapt);
+					adapt.notifyDataSetChanged();
+					dialog.show();
+			}
+		});
+        
+        /************************Matcher Ends here*****************************************************/
         
     }
     

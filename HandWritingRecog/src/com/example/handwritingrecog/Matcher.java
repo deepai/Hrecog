@@ -21,7 +21,7 @@ public class Matcher {
 	HashMap<String,ArrayList<Character_Stroke>> LUTCharStrokes; //for thumbnail of each charactertype
 	ArrayList<float[]> InputCharacter; //Userdrawn Character
 	ArrayList<String> StrokeSequence;
-	private ArrayList<float[]> UserInputCentroid; //to Store the centroid of the userInput
+	private ArrayList<float[]> UserInputCentroid=new ArrayList<float[]>(); //to Store the centroid of the userInput
 	public Matcher() {
 		// TODO Auto-generated constructor stub
 		try {

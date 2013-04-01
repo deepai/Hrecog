@@ -9,6 +9,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" >
 
+            <Button
+                android:id="@+id/button4"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="44dp"
+                android:layout_height="wrap_content"
+                android:text="R" 
+                android:textColor="#ffffff"/>
+
             <EditText
                 android:id="@+id/editText1"
                 android:layout_width="wrap_content"
@@ -64,19 +72,12 @@
 
                 <android.gesture.GestureOverlayView
                     android:id="@+id/gestureOverlayView1"
-                    android:layout_width="1199dp"
+                    android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:fadeOffset="1000"
                     android:gestureStrokeType="multiple" >
 
                 </android.gesture.GestureOverlayView>
-
-                <ListView
-                    android:id="@+id/listView1"
-                    android:layout_width="64dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" >
-                </ListView>
 
             </LinearLayout>
 
