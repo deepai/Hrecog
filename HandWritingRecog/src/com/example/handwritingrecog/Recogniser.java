@@ -41,7 +41,7 @@ import android.gesture.GestureOverlayView;
 import android.gesture.GestureOverlayView.OnGesturePerformedListener;
 
 public class Recogniser extends Activity {
-
+/*********************************************Fields**************************************/
 	HashMap<String,float[]> Strokes;
 	HashMap<String,String> uniVals;
 	CharLUT LutMatcher; 
@@ -62,6 +62,8 @@ public class Recogniser extends Activity {
 	final Context context = this;
 	public HashMap<String, ArrayList<Character_Stroke>> characterStrokes;
     boolean showDialog=true;
+    
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,12 +76,13 @@ public class Recogniser extends Activity {
     		uniVals=character.initvalue(); //load the character map
     		characterStrokes=Strokesloader.loadStrokesClass("/mnt/sdcard/LUTCharStrokes.dat");
     		
-    		/*********************************************************************************************************/
+     
     		//Toast.makeText(getApplicationContext(), Strokes.size(),Toast.LENGTH_SHORT).show();
     	} catch (Exception e1) {
     		// TODO Auto-generated catch block
     		e1.printStackTrace();
     	}
+     /*********************************************************************************************************/
         try {
 			mt=new Matcher(characterStrokes);
 			//Toast.makeText(context, "Success loading library files", Toast.LENGTH_SHORT).show();
@@ -105,12 +108,10 @@ public class Recogniser extends Activity {
         	Unicodemapper.add(new unicodeMapping(s, uniVals.get(s)));
         	
         }
-          
-        /*
-         * RELOAD THE LUT AND STROKE FILES;
-         */
+       
+        /*******************************************ATTACH THE LISTENERS******************************************/
 
-        Reload.setOnClickListener(new OnClickListener() {
+        Reload.setOnClickListener(new OnClickListener() {  //Listener for RefreshButton to reload the primary files
 			
 			@Override
 			public void onClick(View arg0) {
@@ -129,7 +130,7 @@ public class Recogniser extends Activity {
 			}
 		});
         
-        SendSMS.setOnClickListener(new OnClickListener() {
+        SendSMS.setOnClickListener(new OnClickListener() { //Listener for SMS and Email application
 			
 			@Override
 			public void onClick(View arg0) {
@@ -186,9 +187,7 @@ public class Recogniser extends Activity {
 			}
 		});
         
-        
-        
-        mv.addOnGesturePerformedListener(new OnGesturePerformedListener() {
+        mv.addOnGesturePerformedListener(new OnGesturePerformedListener() { //Listener for GestureOverlayView for recognition
 			
 			@Override
 			public void onGesturePerformed(GestureOverlayView arg0, Gesture arg1) {
@@ -208,9 +207,8 @@ public class Recogniser extends Activity {
 				Recogniser.execute(UserDrawnStroke);
 			}
 		});
-        
-        
-        combinecharacter.setOnClickListener(new OnClickListener() {
+       
+        combinecharacter.setOnClickListener(new OnClickListener() { //Listener for Combine character function
 			
 			@Override
 			public void onClick(View arg0) {
@@ -240,7 +238,8 @@ public class Recogniser extends Activity {
         /************************Matcher Ends here*****************************************************/
         
     }
-    public void StrokeMatcher()
+    public void StrokeMatcher()   //Stroke Matcher function
+
     {
     	    
     	    final Dialog dialog = new Dialog(context);
@@ -281,6 +280,7 @@ public class Recogniser extends Activity {
 						Toast.makeText(context,"Success", Toast.LENGTH_SHORT).show();	
 						dialog.dismiss();
 						
+						
 					}
 					
 					else
@@ -309,6 +309,7 @@ public class Recogniser extends Activity {
 									{
 										finallist.add(e);
 									}
+									multiselect.dismiss();
 								}
 							});
 							multiselect.show();
@@ -330,15 +331,15 @@ public class Recogniser extends Activity {
     
     
     
-    /************************RECOGNISER CLASS*****************************************************/
+    /************************Recogniser Class Separate Thread*****************************************************/
     
     class performRecognition extends AsyncTask<ArrayList<float[]>,Void,String>
     {
 
 		@Override
-		protected String doInBackground(ArrayList<float[]>... params) {
+		protected String doInBackground(ArrayList<float[]>... params) { ///Compute the Recognition herez
 			
-			String finalCharacterClass=null;
+		  String finalCharacterClass=null;
 		  String[] RecognizedStrokes=new String[params[0].size()];
 		  //Set<String> libraryClassesKeys=Strokes.keySet(); //obtain the keys
 		
