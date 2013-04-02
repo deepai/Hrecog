@@ -10,7 +10,10 @@ import com.example.handwritingrecog.DTWRecogniser;
 
 import preprocessing.Scaling;
 import preprocessing.smoothing;
+import utils.SaveFile;
+import utils.Strokesloader;
 
+import Character_Stroke.Character_Stroke;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.telephony.SmsManager;
@@ -19,7 +22,9 @@ import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,9 +56,12 @@ public class Recogniser extends Activity {
 	ArrayAdapter<String> charchoiceAdapt;
 	ArrayList<float[]> InputCharacter; //to hold the UserInput Character after preprocessing
 	ArrayList<unicodeMapping> Unicodemapper=new ArrayList<unicodeMapping>();
-	Matcher mt=new Matcher(); //matcher class
+	Matcher mt;
+	final ArrayList<Character_Stroke> finallist=new ArrayList<Character_Stroke>();
 	
 	final Context context = this;
+	public HashMap<String, ArrayList<Character_Stroke>> characterStrokes;
+    boolean showDialog=true;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,7 +72,7 @@ public class Recogniser extends Activity {
         	Strokes=utils.Strokesloader.loadStrokes("/mnt/sdcard/Library.dat");
     		LutMatcher=new CharLUT(utils.Strokesloader.loadForwardLUT("/mnt/sdcard/LutLex.dat"));
     		uniVals=character.initvalue(); //load the character map
-    
+    		characterStrokes=Strokesloader.loadStrokesClass("/mnt/sdcard/LUTCharStrokes.dat");
     		
     		/*********************************************************************************************************/
     		//Toast.makeText(getApplicationContext(), Strokes.size(),Toast.LENGTH_SHORT).show();
@@ -72,6 +80,13 @@ public class Recogniser extends Activity {
     		// TODO Auto-generated catch block
     		e1.printStackTrace();
     	}
+        try {
+			mt=new Matcher(characterStrokes);
+			//Toast.makeText(context, "Success loading library files", Toast.LENGTH_SHORT).show();
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			Toast.makeText(context,e1.toString(), Toast.LENGTH_SHORT).show();
+		}
        /************************ATTACH THE UI COMPONENTS*****************************************************/
        
         PhoneEntry = ( EditText) findViewById(R.id.editText2);
@@ -216,41 +231,103 @@ public class Recogniser extends Activity {
 			@Override
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
-				 
-		    	    final Dialog dialog = new Dialog(context);
-					dialog.setContentView(R.layout.dialog_unicode);
-					dialog.setTitle("Choose Correct Character.");
-					ListView charchoices=(ListView) dialog.findViewById(R.id.listView1);
-					charchoices.setOnItemClickListener(new OnItemClickListener() {
-
-						@Override
-						public void onItemClick(AdapterView<?> arg0, View arg1,
-								int arg2, long arg3) {
-							// TODO Auto-generated method stub
-							TextView t=(TextView) arg1.findViewById(R.id.text1);
-							String charactername=(String) t.getTag(); //get the tag name
-							//Toast.makeText(context, charactername, Toast.LENGTH_SHORT).show();
-							/*
-							 * Number of Characters found
-							 */
-							ArrayList<String> Charactersequences=mt.NumStrokesSeq(charactername, InputCharacter.size()); //number of Strokes present in the InputCharacter
-							//Toast.makeText(context,temp+"", Toast.LENGTH_SHORT).show();
-							if(Charactersequences.size()==1)
-							{
-								mt.StrokeMatch(Charactersequences.get(0), InputCharacter);
-							}
-						}
-					});
-					customAdapter adapt=new customAdapter(context,R.layout.listview,Unicodemapper); //attach the adapter
-					charchoices.setAdapter(adapt);
-					adapt.notifyDataSetChanged();
-					dialog.show();
+				 StrokeMatcher();
+		    	   
 			}
 		});
+        
         
         /************************Matcher Ends here*****************************************************/
         
     }
+    public void StrokeMatcher()
+    {
+    	    
+    	    final Dialog dialog = new Dialog(context);
+			dialog.setContentView(R.layout.dialog_unicode);
+			dialog.setTitle("Choose Correct Character.");
+			ListView charchoices=(ListView) dialog.findViewById(R.id.listView1);
+			charchoices.setOnItemClickListener(new OnItemClickListener() {
+
+				@Override
+				public void onItemClick(AdapterView<?> arg0, View arg1,
+						int arg2, long arg3) {
+					// TODO Auto-generated method stub
+					TextView t=(TextView) arg1.findViewById(R.id.text1);
+					String charactername=(String) t.getTag(); //get the tag name
+					
+					
+					/*
+					 * Number of Characters found
+					 */
+					
+					ArrayList<String> Charactersequences=mt.NumStrokesSeq(charactername, InputCharacter.size()); //number of Strokes present in the InputCharacter
+					//Toast.makeText(context,Charactersequences.size()+"", Toast.LENGTH_SHORT).show();
+					//Toast.makeText(context,Charactersequences.get(0),Toast.LENGTH_SHORT).show();
+					
+					if(Charactersequences.size()==1)
+					{
+						ArrayList<Character_Stroke> temp=mt.StrokeMatch(Charactersequences.get(0), InputCharacter);
+						finallist.clear(); //clear the final list 
+						for(Character_Stroke e:temp) //add all the individual strokes in the finallist!
+						{
+							finallist.add(e);
+						}
+						for(Character_Stroke e:finallist)
+						{
+							Strokes.put(e.getStroke_label()+"_x",e.getStroke());
+						}
+						SaveFile.WriteFile("/mnt/sdcard/Library.dat",Strokes);
+						Toast.makeText(context,"Success", Toast.LENGTH_SHORT).show();	
+						dialog.dismiss();
+						
+					}
+					
+					else
+					{
+						
+						dialog.dismiss();
+						if(Charactersequences.size()!=0)
+						{
+							final Dialog multiselect=new Dialog(context);
+							multiselect.setContentView(R.layout.dialogmulchoice); //show the multiple dialog
+							ListView lv=(ListView) multiselect.findViewById(R.id.listView12);
+							customadaptermulti adapter=new customadaptermulti(context,R.layout.editcharacter,Charactersequences,characterStrokes);
+							lv.setAdapter(adapter);
+							adapter.notifyDataSetChanged(); //update view
+							lv.setOnItemClickListener(new OnItemClickListener() { //listener event for the onclick!
+
+								@Override
+								public void onItemClick(
+										AdapterView<?> arga0, View arga1,int arga2, long arga3) {
+									// TODO Auto-generated method stub
+									ImageView v=(ImageView) arga1.findViewById(R.id.imageView1);
+									String seq=(String) v.getTag(); //obtain the final sequence
+									ArrayList<Character_Stroke> temp=mt.StrokeMatch(seq, InputCharacter); //match with the Character
+									finallist.clear(); //clear the final list 
+									for(Character_Stroke e:temp) //add all the individual strokes in the finallist!
+									{
+										finallist.add(e);
+									}
+								}
+							});
+							multiselect.show();
+						}
+						else
+						{
+							Toast.makeText(context,"Error",Toast.LENGTH_SHORT).show();
+						}
+						
+					}
+				}
+				
+			});
+			customAdapterSingle adapt=new customAdapterSingle(context,R.layout.listview,Unicodemapper); //attach the adapter
+			charchoices.setAdapter(adapt);
+			adapt.notifyDataSetChanged();
+			dialog.show();
+    }
+    
     
     
     /************************RECOGNISER CLASS*****************************************************/
@@ -298,9 +375,47 @@ public class Recogniser extends Activity {
 			super.onPostExecute(result);
 			
 				String previoustext=TextArea.getText().toString();
-				previoustext+=uniVals.get(LutMatcher.LUTforward.get(result));
-				TextArea.setText(previoustext);
-				Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT).show(); 
+				String newresult=uniVals.get(LutMatcher.LUTforward.get(result));
+				if(newresult==null)
+				{
+					if(showDialog)
+					{
+
+						final Dialog dialogview = new Dialog(context);
+						dialogview.setContentView(R.layout.dialogcorrection);
+						dialogview.setTitle("Assistance");
+						Button text=(Button) dialogview.findViewById(R.id.button_ok);
+						final CheckBox ct=(CheckBox) dialogview.findViewById(R.id.checkBox1);
+						
+						text.setOnClickListener(new OnClickListener() {
+							
+							@Override
+							public void onClick(View arg0) {
+								// TODO Auto-generated method stub
+								if(ct.isChecked())
+									showDialog=false;
+								dialogview.dismiss();
+								StrokeMatcher();
+							}
+						});
+						dialogview.show();
+						
+					}
+					else
+					{
+						StrokeMatcher();
+					}
+					
+					
+				}
+				else
+				{
+					previoustext+=newresult;		
+					
+					TextArea.setText(previoustext);
+					Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT).show(); 
+				}
+				
 		}
     	
     }

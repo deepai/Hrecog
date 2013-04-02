@@ -4,5 +4,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
     <string name="title_activity_recogniser">Recogniser</string>
+    <string name="displayText">We are not able to correctly Identify the character that you have drawn and in order to Improve the accuracy of the software,we would like you to choose the correct character that you had intended to draw.
+       </string>
 
 </resources>

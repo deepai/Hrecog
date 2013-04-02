@@ -22,17 +22,13 @@ public class Matcher {
 	ArrayList<float[]> InputCharacter; //Userdrawn Character
 	ArrayList<String> StrokeSequence;
 	private ArrayList<float[]> UserInputCentroid=new ArrayList<float[]>(); //to Store the centroid of the userInput
-	public Matcher() {
+	public Matcher(HashMap<String, ArrayList<Character_Stroke>> characterStrokes) throws Exception {
 		// TODO Auto-generated constructor stub
-		try {
 			LUTback=Strokesloader.loadbackwardLUT(fLutback);
 			LUTCentroid=Strokesloader.LoadCentroids(fCentroid);
-			LUTCharStrokes=Strokesloader.loadStrokesClass(fCharStrokes);
+			LUTCharStrokes=characterStrokes;
 			
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
 	}
 	public ArrayList<String> NumStrokesSeq(String selChar,int usernumStroke) //return the number of Strokesequences matching user made Character
 	{
@@ -49,8 +45,11 @@ public class Matcher {
 	}
 	public ArrayList<Character_Stroke> StrokeMatch(String inputStrokeSeq,ArrayList<float[]> userinputStrokes)  //Inorder to Match the userStroke
 	{
-		UserSelStrokeSeq=inputStrokeSeq;
-		InputCharacter=userinputStrokes;
+		UserInputCentroid.clear();// clearing the centroidStrokes
+		UserSelStrokeSeq=inputStrokeSeq; //set the UserSelectedStroke to true;
+		InputCharacter=userinputStrokes; 
+
+/*********************************************CENTROID CALCULATION**************************************/
 		for(int i=0;i<InputCharacter.size();i++)
 		{
 			
@@ -75,7 +74,10 @@ public class Matcher {
 			UserInputCentroid.add(centroid); //add the centroid obtained
 		    				
 		}
-		UserInputCentroid=scaleCentroid(UserInputCentroid); //obtain scaled centroid
+		/*********************************************CENTROID CALCULATION ENDS**************************************/
+
+		UserInputCentroid=scaleCentroid(UserInputCentroid); /*Scale Centroids*/
+		
 		ArrayList<StrokeCentroid> matchedStroke=LUTCentroid.get(UserSelStrokeSeq); //obtain the corresponding Centroid parametre
 		ArrayList<float[]> SampleC=new ArrayList<float[]>(matchedStroke.size());
 		ArrayList<Character_Stroke> userinput=new ArrayList<Character_Stroke>();
@@ -83,10 +85,11 @@ public class Matcher {
 		{
 			SampleC.add(t.getCentroid());
 		}
-		int[] mapstrokes=strokeMapping(InputCharacter,SampleC);
+		
+		int[] mapstrokes=strokeMapping(InputCharacter,SampleC); //get the mapping of the inputStrokes to the output Strokes
 		for(int i=0;i<mapstrokes.length;i++)
 		{
-			Character_Stroke temp=new Character_Stroke(UserInputCentroid.get(i));
+			Character_Stroke temp=new Character_Stroke(InputCharacter.get(i));
 			temp.setStroke_label(matchedStroke.get(mapstrokes[i]).getStrokelabel());
 			userinput.add(temp);
 		}
@@ -98,8 +101,9 @@ public class Matcher {
 		int i, j, pos;
 		float x1, y1, x2, y2;
 		float D, Dmin;
-		int N = (inputC.size())/2;
+		int N = inputC.size();
 		int matches[] = new int[N];	
+		boolean matchesdone[]=new boolean[N];
 		
 		for(i=0; i< N; i++)
 		{
@@ -109,8 +113,10 @@ public class Matcher {
 			y1 = inputC.get(i)[1];
 			for(j=0; j<N; j++)
 			{
-				//if( sample_dual[j][0] == Float.NaN) //if already matched
-					////continue;
+				
+				if(matchesdone[j]==true) //if already matched
+					continue;
+				
 				x2 = sampleC.get(j)[0];
 				y2 = sampleC.get(j)[1];
 				
@@ -123,7 +129,8 @@ public class Matcher {
 				}
 			}
 			matches[i] = pos;
-			//sample_dual[pos][0] = Float.NaN;
+			matchesdone[pos]=true; //matched,wont be taken in consideration next time
+			
 		}
 		return matches;
 	}
