@@ -1,9 +1,6 @@
 package com.example.handwritingrecog;
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import android.os.storage.StorageManager;
-
 import utils.Strokesloader;
 
 import Centroid.*;

@@ -24,9 +24,9 @@ public final class R {
         public static final int editText1=0x7f070001;
         public static final int editText2=0x7f070003;
         public static final int gestureOverlayView1=0x7f070006;
+        public static final int gridView1=0x7f070007;
         public static final int imageView1=0x7f07000d;
         public static final int linearLayout1=0x7f07000c;
-        public static final int listView1=0x7f070007;
         public static final int listView12=0x7f07000b;
         public static final int menu_settings=0x7f07000f;
         public static final int text1=0x7f07000e;

@@ -1,10 +1,8 @@
 package com.example.handwritingrecog;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Set;
 
 import com.example.handwritingrecog.DTWRecogniser;
 
@@ -24,6 +22,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -32,7 +31,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -52,7 +50,6 @@ public class Recogniser extends Activity {
 	Button combinecharacter;
 	Button Reload;
 	Button userCorrection; 
-	ListView charchoice;
 	ArrayAdapter<String> charchoiceAdapt;
 	ArrayList<float[]> InputCharacter; //to hold the UserInput Character after preprocessing
 	ArrayList<unicodeMapping> Unicodemapper=new ArrayList<unicodeMapping>();
@@ -98,7 +95,6 @@ public class Recogniser extends Activity {
         TextArea=(EditText) findViewById(R.id.editText1);
         mv=(GestureOverlayView) findViewById(R.id.gestureOverlayView1);
         combinecharacter=(Button) findViewById(R.id.button2);
-        charchoice=(ListView) findViewById(R.id.listView1);
         userCorrection=(Button) findViewById(R.id.button4);
         
         /*********************************************************************************************************/
@@ -245,7 +241,7 @@ public class Recogniser extends Activity {
     	    final Dialog dialog = new Dialog(context);
 			dialog.setContentView(R.layout.dialog_unicode);
 			dialog.setTitle("Choose Correct Character.");
-			ListView charchoices=(ListView) dialog.findViewById(R.id.listView1);
+			GridView charchoices=(GridView) dialog.findViewById(R.id.gridView1);
 			charchoices.setOnItemClickListener(new OnItemClickListener() {
 
 				@Override
@@ -253,8 +249,7 @@ public class Recogniser extends Activity {
 						int arg2, long arg3) {
 					// TODO Auto-generated method stub
 					TextView t=(TextView) arg1.findViewById(R.id.text1);
-					String charactername=(String) t.getTag(); //get the tag name
-					
+					String charactername=(String) t.getTag(); //get the tag name					
 					
 					/*
 					 * Number of Characters found
@@ -264,7 +259,7 @@ public class Recogniser extends Activity {
 					//Toast.makeText(context,Charactersequences.size()+"", Toast.LENGTH_SHORT).show();
 					//Toast.makeText(context,Charactersequences.get(0),Toast.LENGTH_SHORT).show();
 					
-					if(Charactersequences.size()==1)
+					/*if(Charactersequences.size()==1)
 					{
 						ArrayList<Character_Stroke> temp=mt.StrokeMatch(Charactersequences.get(0), InputCharacter);
 						finallist.clear(); //clear the final list 
@@ -281,9 +276,9 @@ public class Recogniser extends Activity {
 						dialog.dismiss();
 						
 						
-					}
+					}*/
 					
-					else
+					//else
 					{
 						
 						dialog.dismiss();
@@ -309,6 +304,14 @@ public class Recogniser extends Activity {
 									{
 										finallist.add(e);
 									}
+									//
+									for(Character_Stroke e:finallist)
+									{
+										Strokes.put(e.getStroke_label()+"_x",e.getStroke());
+									}
+									SaveFile.WriteFile("/mnt/sdcard/Library.dat",Strokes);
+									//
+									Toast.makeText(context,"Success", Toast.LENGTH_SHORT).show();
 									multiselect.dismiss();
 								}
 							});
