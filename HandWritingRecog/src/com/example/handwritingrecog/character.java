@@ -14,7 +14,7 @@ public class character {
 	        uniVals.put("6","\u098A");
 	        uniVals.put("7","\u098B");
 	        uniVals.put("8","\u098f");
-	        uniVals.put("9","\u09890");
+	        uniVals.put("9","\u09890"); 
 	        uniVals.put("10","\u0993");
 	        uniVals.put("11","\u0994");
 	        uniVals.put("12","\u0995");

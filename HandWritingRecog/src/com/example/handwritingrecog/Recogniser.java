@@ -54,6 +54,7 @@ public class Recogniser extends Activity {
 	ArrayList<float[]> InputCharacter; //to hold the UserInput Character after preprocessing
 	ArrayList<unicodeMapping> Unicodemapper=new ArrayList<unicodeMapping>();
 	Matcher mt;
+	String correctedChar;
 	final ArrayList<Character_Stroke> finallist=new ArrayList<Character_Stroke>();
 	
 	final Context context = this;
@@ -225,7 +226,7 @@ public class Recogniser extends Activity {
 			@Override
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
-				 StrokeMatcher();
+				 StrokeMatcher(2);
 		    	   
 			}
 		});
@@ -234,10 +235,10 @@ public class Recogniser extends Activity {
         /************************Matcher Ends here*****************************************************/
         
     }
-    public void StrokeMatcher()   //Stroke Matcher function
+    public void StrokeMatcher(int type)   //Stroke Matcher function
 
     {
-    	    
+    		final int valtype=type;
     	    final Dialog dialog = new Dialog(context);
 			dialog.setContentView(R.layout.dialog_unicode);
 			dialog.setTitle("Choose Correct Character.");
@@ -250,17 +251,33 @@ public class Recogniser extends Activity {
 					// TODO Auto-generated method stub
 					TextView t=(TextView) arg1.findViewById(R.id.text1);
 					String charactername=(String) t.getTag(); //get the tag name					
+					correctedChar=t.getText().toString();
 					
+					if(valtype==1)
+					{
+						String preText=TextArea.getText().toString();
+						TextArea.setText(preText+uniVals.get(charactername));//set the corrected character
+					}
+					else
+					{
+						String preText=TextArea.getText().toString();
+						preText+=uniVals.get(charactername);
+						TextArea.setText(preText);						
+					}
 					/*
 					 * Number of Characters found
-					 */
-					
+					*/
+					/*
 					ArrayList<String> Charactersequences=mt.NumStrokesSeq(charactername, InputCharacter.size()); //number of Strokes present in the InputCharacter
+					
+					
 					//Toast.makeText(context,Charactersequences.size()+"", Toast.LENGTH_SHORT).show();
 					//Toast.makeText(context,Charactersequences.get(0),Toast.LENGTH_SHORT).show();
-					
-					/*if(Charactersequences.size()==1)
+					//Toast.makeText(context,Charactersequences.get(1),Toast.LENGTH_SHORT).show();
+			
+					if(Charactersequences.size()==1)
 					{
+						
 						ArrayList<Character_Stroke> temp=mt.StrokeMatch(Charactersequences.get(0), InputCharacter);
 						finallist.clear(); //clear the final list 
 						for(Character_Stroke e:temp) //add all the individual strokes in the finallist!
@@ -273,12 +290,19 @@ public class Recogniser extends Activity {
 						}
 						SaveFile.WriteFile("/mnt/sdcard/Library.dat",Strokes);
 						Toast.makeText(context,"Success", Toast.LENGTH_SHORT).show();	
-						dialog.dismiss();
+						dialog.dismiss();//
 						
 						
-					}*/
+						ArrayList<float[]> centroidinput=utils.Centroid.computeScaled(InputCharacter);
+						for(int z=0;z<centroidinput.size();z++)
+						{
+							Toast.makeText(context,finallist.get(z).getStroke_label()+":"+centroidinput.get(z)[0]+":"+centroidinput.get(z)[1],Toast.LENGTH_LONG).show();
+						}
+						
+					}
 					
 					//else
+					/*
 					{
 						
 						dialog.dismiss();
@@ -313,6 +337,7 @@ public class Recogniser extends Activity {
 									//
 									Toast.makeText(context,"Success", Toast.LENGTH_SHORT).show();
 									multiselect.dismiss();
+									
 								}
 							});
 							multiselect.show();
@@ -323,6 +348,7 @@ public class Recogniser extends Activity {
 						}
 						
 					}
+					*/
 				}
 				
 			});
@@ -373,7 +399,7 @@ public class Recogniser extends Activity {
 		}
 		@Override
 		
-		 /************************TJOB TO PERFORM AFTER RECOGNITION*****************************************************/
+		 /************************THE END OF JOB TO PERFORM AFTER RECOGNITION*****************************************************/
 		protected void onPostExecute(String result) {
 			// TODO Auto-generated method stub
 			super.onPostExecute(result);
@@ -382,34 +408,8 @@ public class Recogniser extends Activity {
 				String newresult=uniVals.get(LutMatcher.LUTforward.get(result));
 				if(newresult==null)
 				{
-					if(showDialog)
-					{
-
-						final Dialog dialogview = new Dialog(context);
-						dialogview.setContentView(R.layout.dialogcorrection);
-						dialogview.setTitle("Assistance");
-						Button text=(Button) dialogview.findViewById(R.id.button_ok);
-						final CheckBox ct=(CheckBox) dialogview.findViewById(R.id.checkBox1);
-						
-						text.setOnClickListener(new OnClickListener() {
-							
-							@Override
-							public void onClick(View arg0) {
-								// TODO Auto-generated method stub
-								if(ct.isChecked())
-									showDialog=false;
-								dialogview.dismiss();
-								StrokeMatcher();
-							}
-						});
-						dialogview.show();
-						
-					}
-					else
-					{
-						StrokeMatcher();
-					}
-					
+					StrokeMatcher(1);
+					previoustext+=correctedChar;
 					
 				}
 				else

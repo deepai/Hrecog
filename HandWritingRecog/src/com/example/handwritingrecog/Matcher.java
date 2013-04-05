@@ -1,6 +1,9 @@
 package com.example.handwritingrecog;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import javax.xml.transform.sax.TemplatesHandler;
+
 import utils.Strokesloader;
 
 import Centroid.*;
@@ -40,8 +43,20 @@ public class Matcher {
 		}
 		return strokeseq;
 	}
+
 	public ArrayList<Character_Stroke> StrokeMatch(String inputStrokeSeq,ArrayList<float[]> userinputStrokes)  //Inorder to Match the userStroke
 	{
+/*************************************conditions for a single Stroke Character**************************/
+		if(userinputStrokes.size()==1)
+		{
+			float[] temp=userinputStrokes.get(0);
+			String name=LUTCharStrokes.get(inputStrokeSeq).get(0).getStroke_label();//get the stroke label of the first string
+			ArrayList<Character_Stroke> tempSingleStroke=new ArrayList<Character_Stroke>();
+			tempSingleStroke.add(new Character_Stroke(temp));
+			tempSingleStroke.get(0).setStroke_label(name);
+			return tempSingleStroke;
+		}
+/*************************************end conditions for a single Stroke Character**************************/		
 		UserInputCentroid.clear();// clearing the centroidStrokes
 		UserSelStrokeSeq=inputStrokeSeq; //set the UserSelectedStroke to true;
 		InputCharacter=userinputStrokes; 
@@ -83,11 +98,11 @@ public class Matcher {
 			SampleC.add(t.getCentroid());
 		}
 		
-		int[] mapstrokes=strokeMapping(InputCharacter,SampleC); //get the mapping of the inputStrokes to the output Strokes
-		for(int i=0;i<mapstrokes.length;i++)
+		int[] mapping=strokeMapping(InputCharacter,SampleC); //get the mapping of the inputStrokes to the output Strokes
+		for(int i=0;i<mapping.length;i++)
 		{
 			Character_Stroke temp=new Character_Stroke(InputCharacter.get(i));
-			temp.setStroke_label(matchedStroke.get(mapstrokes[i]).getStrokelabel());
+			temp.setStroke_label(matchedStroke.get(mapping[i]).getStrokelabel());
 			userinput.add(temp);
 		}
 		return userinput;
