@@ -1,9 +1,15 @@
 package com.example.handwritingrecog;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 import javax.xml.transform.sax.TemplatesHandler;
 
+import android.os.AsyncTask;
+
+import utils.SaveFile;
 import utils.Strokesloader;
 
 import Centroid.*;
@@ -19,15 +25,38 @@ public class Matcher {
 	HashMap<String,ArrayList<StrokeCentroid>> LUTCentroid; //centroids of all the Characters Strokes
 	HashMap<String,ArrayList<String>> LUTback; 
 	HashMap<String,ArrayList<Character_Stroke>> LUTCharStrokes; //for thumbnail of each charactertype
+	HashMap<String,float[]> Strokes;
 	ArrayList<float[]> InputCharacter; //Userdrawn Character
 	ArrayList<String> StrokeSequence;
+	Set<String> keys;
+	recogniser matchedStrokeRecogniser=new recogniser();
 	private ArrayList<float[]> UserInputCentroid=new ArrayList<float[]>(); //to Store the centroid of the userInput
-	public Matcher(HashMap<String, ArrayList<Character_Stroke>> characterStrokes) throws Exception {
+	public Matcher(HashMap<String, ArrayList<Character_Stroke>> characterStrokes,HashMap<String,float[]> strokes) throws Exception {
 		// TODO Auto-generated constructor stub
 			LUTback=Strokesloader.loadbackwardLUT(fLutback);
 			LUTCentroid=Strokesloader.LoadCentroids(fCentroid);
 			LUTCharStrokes=characterStrokes;
+			Strokes=strokes;
+			keys=Strokes.keySet();
 			
+	}
+	public void StrokeMatch(String inputSequence)
+	{
+		String[] keysInput=inputSequence.split(" ");
+		
+		ArrayList<String> Strokesname=new ArrayList<String>(); //to store all the strokes;
+		for(int i=0;i<keysInput.length;i++) //add all the Strokes
+		{
+			Iterator<String> itr=keys.iterator();
+			while(itr.hasNext())
+			{
+				String key=itr.next();
+				if(key.contains(keysInput[i]))
+					Strokesname.add(key);
+			}
+			
+		}
+		matchedStrokeRecogniser.execute(Strokesname);		
 		
 	}
 	public ArrayList<String> NumStrokesSeq(String selChar,int usernumStroke) //return the number of Strokesequences matching user made Character
@@ -100,7 +129,7 @@ public class Matcher {
 			SampleC.add(t.getCentroid());
 		}
 		
-		int[] mapping=strokeMapping(InputCharacter,SampleC); //get the mapping of the inputStrokes to the output Strokes
+		int[] mapping=strokeMapping2(InputCharacter,SampleC); //get the mapping of the inputStrokes to the output Strokes
 		for(int i=0;i<mapping.length;i++)
 		{
 			Character_Stroke temp=new Character_Stroke(InputCharacter.get(i));
@@ -148,6 +177,77 @@ public class Matcher {
 		}
 		return matches;
 	}
+	
+	static int[] strokeMapping2(ArrayList<float[]> inputC,ArrayList<float[]> sampleC) //mapping using slope-intercept
+	{
+		int i, j, pos;
+		float x1, y1, x2, y2, m, c;
+		float D, Dmin;
+		int N = inputC.size();
+		float Dist[][] = new float[N][N];
+		
+		float input_dual[][] = new float[N][2];
+		float sample_dual[][] = new float[N][2];
+		int matches[] = new int[N];	
+		
+		//boolean matchesdone[]=new boolean[N];
+		
+		//Dual of lines(Points to (200,200) in 400x400 scaled grid)
+		for(i=0; i< N; i++)
+		{
+			x1 = inputC.get(i)[0];
+			y1 = inputC.get(i)[1];
+			m = (200-y1)/(200-x1); // slope m = (x2-x1)/(y2-y1)
+			c = y1 - (m*x1);
+			input_dual[i][0] = m;
+			input_dual[i][1] = -c;
+			
+			x1 = sampleC.get(i)[0];
+			y1 = sampleC.get(i)[1];
+			m = (200-y1)/(200-x1); 
+			c = y1 - (m*x1);
+			sample_dual[i][0] = m;
+			sample_dual[i][1] = -c;
+		}
+		
+		//finding closest match to input strokes
+		pos = 0;
+		
+		for(i=0; i< N; i++)
+		{
+			x1 = input_dual[i][0];
+			y1 = input_dual[i][1];
+			Dmin = Float.MAX_VALUE;
+			
+			for(j=0; j<N; j++)
+			{
+				/*if( sample_dual[j][0] == Float.NaN) //if already matched
+					continue;*/
+				x2 = sample_dual[j][0];
+				y2 = sample_dual[j][1];
+				//D = (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2);
+				D = Math.abs(x2 - x1);
+				if( D < Dmin )
+				{
+					Dmin = D;
+					pos = j;
+				}
+				Dist[i][j] = D;
+			}
+			matches[i] = pos;
+			//sample_dual[pos][0] = Float.NaN;
+		}
+		
+		for(i=0; i< N;i++)
+		{
+			for(j=0; j<N; j++)
+				System.out.print(Dist[i][j]+" ");
+			System.out.println();
+		}
+		return matches;
+	}
+	
+	
 	public ArrayList<float[]> scaleCentroid(ArrayList<float[]> arg)
 	{
 		float scale;
@@ -213,7 +313,37 @@ public class Matcher {
 		return arg;
 	}
 	
-	
+	class recogniser extends AsyncTask<ArrayList<String>,Void,Void> ///to perform recognition for the following Stroke
+	{
+
+		@Override
+		protected Void doInBackground(ArrayList<String>... params) {
+			// TODO Auto-generated method stub
+			//params is the Stroke numbers to be mapped
+			for(int i=0;i<InputCharacter.size();i++)
+			  {
+				 double minValue=Double.MAX_VALUE;
+				 String ClassRecognizedMin = null;
+				 
+				 for(int j=0;j<params[0].size();j++)
+				 {
+					 String tempClass=params[0].get(j); //temporary class name
+					 double score=DTWRecogniser.DTWDistance(InputCharacter.get(i),Strokes.get(tempClass));
+					 if(minValue>score)
+					 {
+						 minValue=score; //set as minimum score
+						 ClassRecognizedMin=tempClass; //set as minimum Score corresponding class
+					 }
+					
+				 }
+				 //add the Stroke in the Strokes;
+				Strokes.put(CharLUT.getStrokename(ClassRecognizedMin),InputCharacter.get(i));				
+			  }
+			SaveFile.WriteFile("/mnt/sdcard/Library.dat",Strokes);
+			return null;
+		}
+		
+	}
 	
 	
 	

@@ -82,7 +82,7 @@ public class Recogniser extends Activity {
     	}
      /*********************************************************************************************************/
         try {
-			mt=new Matcher(characterStrokes);
+			mt=new Matcher(characterStrokes,Strokes);
 			//Toast.makeText(context, "Success loading library files", Toast.LENGTH_SHORT).show();
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block

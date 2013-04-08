@@ -51,6 +51,19 @@ public class CharLUT
 			return (arrange(s.trim()));			
 
 	}
+	public static String getStrokename(String temp)
+	{
+		String s="";
+		int j=0;
+		while(j<temp.length())
+		{
+			if(Character.isDigit(temp.charAt(j))) //check if the character is a Digit
+				s+=temp.charAt(j);
+			j++;
+		}
+		return s.trim();
+	}
+	
 	
 	/**
 	 * @param String correctCharClass from user's correction
