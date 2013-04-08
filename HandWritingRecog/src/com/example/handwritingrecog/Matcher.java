@@ -43,20 +43,22 @@ public class Matcher {
 		}
 		return strokeseq;
 	}
+	public String getSingleStrokeName(String Character) //get the StrokeName corresponding to the character(//for single stroke)
+	{
+		ArrayList<String> Sequences=LUTback.get(Character);
+		String SingleStroke = null;
+		for(String k:Sequences)
+		{
+			if(!k.contains(" "))
+			{
+				SingleStroke=k;
+			}
+		}
+		return SingleStroke;
+	}
 
 	public ArrayList<Character_Stroke> StrokeMatch(String inputStrokeSeq,ArrayList<float[]> userinputStrokes)  //Inorder to Match the userStroke
 	{
-/*************************************conditions for a single Stroke Character**************************/
-		if(userinputStrokes.size()==1)
-		{
-			float[] temp=userinputStrokes.get(0);
-			String name=LUTCharStrokes.get(inputStrokeSeq).get(0).getStroke_label();//get the stroke label of the first string
-			ArrayList<Character_Stroke> tempSingleStroke=new ArrayList<Character_Stroke>();
-			tempSingleStroke.add(new Character_Stroke(temp));
-			tempSingleStroke.get(0).setStroke_label(name);
-			return tempSingleStroke;
-		}
-/*************************************end conditions for a single Stroke Character**************************/		
 		UserInputCentroid.clear();// clearing the centroidStrokes
 		UserSelStrokeSeq=inputStrokeSeq; //set the UserSelectedStroke to true;
 		InputCharacter=userinputStrokes; 

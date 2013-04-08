@@ -267,7 +267,24 @@ public class Recogniser extends Activity {
 					/*
 					 * Number of Characters found
 					*/
-					/*
+					if(InputCharacter.size()==1) //handle single Stroke
+					{
+						String InputCharName=mt.getSingleStrokeName(charactername);
+						if(InputCharName!=null)
+						{
+							Strokes.put(InputCharName+"_x", InputCharacter.get(0));
+							SaveFile.WriteFile("/mnt/sdcard/Library.dat",Strokes);
+							Toast.makeText(context,"Successfully saved the stroke", Toast.LENGTH_SHORT).show();	
+							dialog.dismiss();//
+						}
+						else
+						{
+							Toast.makeText(context,"Found Null", Toast.LENGTH_SHORT).show();	
+							dialog.dismiss();//
+						}
+						return;
+					}
+					
 					ArrayList<String> Charactersequences=mt.NumStrokesSeq(charactername, InputCharacter.size()); //number of Strokes present in the InputCharacter
 					
 					
@@ -301,8 +318,7 @@ public class Recogniser extends Activity {
 						
 					}
 					
-					//else
-					/*
+					else					
 					{
 						
 						dialog.dismiss();
@@ -348,7 +364,7 @@ public class Recogniser extends Activity {
 						}
 						
 					}
-					*/
+					
 				}
 				
 			});

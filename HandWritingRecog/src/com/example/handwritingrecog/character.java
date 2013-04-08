@@ -56,7 +56,6 @@ public class character {
 	        uniVals.put("48","\u0982");
 	        uniVals.put("49","\u0983");
 	        uniVals.put("50","\u0981");
-
 	        uniVals.put("51","\u09BE");
 	        uniVals.put("52","\u09BF");
 	        uniVals.put("53","\u09C0");
