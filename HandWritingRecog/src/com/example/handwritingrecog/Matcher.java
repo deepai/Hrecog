@@ -7,7 +7,9 @@ import java.util.Set;
 
 import javax.xml.transform.sax.TemplatesHandler;
 
+import android.content.Context;
 import android.os.AsyncTask;
+import android.widget.Toast;
 
 import utils.SaveFile;
 import utils.Strokesloader;
@@ -22,6 +24,7 @@ public class Matcher {
 	String fLutback="/mnt/sdcard/LUTBack.dat"; //for LUT backCharacter
 	String UserSelStrokeSeq; //Store User Selected Stroke here
 	String UserSelCharacter; //Store user Selected Character here
+	Context ct;
 	HashMap<String,ArrayList<StrokeCentroid>> LUTCentroid; //centroids of all the Characters Strokes
 	HashMap<String,ArrayList<String>> LUTback; 
 	HashMap<String,ArrayList<Character_Stroke>> LUTCharStrokes; //for thumbnail of each charactertype
@@ -29,19 +32,20 @@ public class Matcher {
 	ArrayList<float[]> InputCharacter; //Userdrawn Character
 	ArrayList<String> StrokeSequence;
 	Set<String> keys;
-	recogniser matchedStrokeRecogniser=new recogniser();
 	private ArrayList<float[]> UserInputCentroid=new ArrayList<float[]>(); //to Store the centroid of the userInput
-	public Matcher(HashMap<String, ArrayList<Character_Stroke>> characterStrokes,HashMap<String,float[]> strokes) throws Exception {
+	public Matcher(HashMap<String, ArrayList<Character_Stroke>> characterStrokes,HashMap<String,float[]> strokes,Context ct) throws Exception {
 		// TODO Auto-generated constructor stub
 			LUTback=Strokesloader.loadbackwardLUT(fLutback);
 			LUTCentroid=Strokesloader.LoadCentroids(fCentroid);
 			LUTCharStrokes=characterStrokes;
 			Strokes=strokes;
 			keys=Strokes.keySet();
+			this.ct=ct;
 			
 	}
-	public void StrokeMatch(String inputSequence)
+	public void StrokeMatchnonCentroid(String inputSequence,ArrayList<float[]> ip)
 	{
+		InputCharacter=ip;
 		String[] keysInput=inputSequence.split(" ");
 		
 		ArrayList<String> Strokesname=new ArrayList<String>(); //to store all the strokes;
@@ -51,12 +55,16 @@ public class Matcher {
 			while(itr.hasNext())
 			{
 				String key=itr.next();
-				if(key.contains(keysInput[i]))
-					Strokesname.add(key);
+				String a=CharLUT.getStrokename(key);
+				String b=CharLUT.getStrokename(keysInput[i]);
+				if((a!=null && b!=null) &&(a.equals(b)) && a.length()!=0 && a.length()!=0) 
+				{
+					Strokesname.add(key);  //add to strokesname
+				}
+				
 			}
-			
 		}
-		matchedStrokeRecogniser.execute(Strokesname);		
+		new recogniser().execute(Strokesname); //execute the mapping
 		
 	}
 	public ArrayList<String> NumStrokesSeq(String selChar,int usernumStroke) //return the number of Strokesequences matching user made Character
@@ -313,13 +321,16 @@ public class Matcher {
 		return arg;
 	}
 	
-	class recogniser extends AsyncTask<ArrayList<String>,Void,Void> ///to perform recognition for the following Stroke
+	class recogniser extends AsyncTask<ArrayList<String>,Void,String> ///to perform recognition for the following Stroke
 	{
 
 		@Override
-		protected Void doInBackground(ArrayList<String>... params) {
+		protected String doInBackground(ArrayList<String>... params) {
 			// TODO Auto-generated method stub
 			//params is the Stroke numbers to be mapped
+			String result;
+			String Strokesadded="";
+			try{
 			for(int i=0;i<InputCharacter.size();i++)
 			  {
 				 double minValue=Double.MAX_VALUE;
@@ -336,13 +347,24 @@ public class Matcher {
 					 }
 					
 				 }
+				 Strokesadded+=" "+ClassRecognizedMin; //the main class required
 				 //add the Stroke in the Strokes;
-				Strokes.put(CharLUT.getStrokename(ClassRecognizedMin),InputCharacter.get(i));				
+				Strokes.put(CharLUT.getStrokename(ClassRecognizedMin)+"_x",InputCharacter.get(i));				
 			  }
 			SaveFile.WriteFile("/mnt/sdcard/Library.dat",Strokes);
-			return null;
+			result="successfully added "+Strokesadded;
+			}catch(Exception e)
+			{
+				result=e.toString();
+			}
+			return result;
 		}
 		
+		@Override
+		protected void onPostExecute(String result) {
+			// TODO Auto-generated method stub
+			Toast.makeText(ct,result, Toast.LENGTH_SHORT).show();
+		}
 	}
 	
 	

@@ -42,6 +42,7 @@ public class Recogniser extends Activity {
 /*********************************************Fields**************************************/
 	HashMap<String,float[]> Strokes;
 	HashMap<String,String> uniVals;
+	HashMap<String,String> unicodeGrid;
 	CharLUT LutMatcher; 
 	GestureOverlayView mv;
 	Button SendSMS;
@@ -72,6 +73,7 @@ public class Recogniser extends Activity {
         	Strokes=utils.Strokesloader.loadStrokes("/mnt/sdcard/Library.dat");
     		LutMatcher=new CharLUT(utils.Strokesloader.loadForwardLUT("/mnt/sdcard/LutLex.dat"));
     		uniVals=character.initvalue(); //load the character map
+    		unicodeGrid=character.unicodeGridView(); //load the character map for unicode gridview
     		characterStrokes=Strokesloader.loadStrokesClass("/mnt/sdcard/LUTCharStrokes.dat");
     		
      
@@ -82,7 +84,7 @@ public class Recogniser extends Activity {
     	}
      /*********************************************************************************************************/
         try {
-			mt=new Matcher(characterStrokes,Strokes);
+			mt=new Matcher(characterStrokes,Strokes,this);
 			//Toast.makeText(context, "Success loading library files", Toast.LENGTH_SHORT).show();
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
@@ -100,9 +102,9 @@ public class Recogniser extends Activity {
         
         /*********************************************************************************************************/
         
-        for(String s:uniVals.keySet()) //store all the unicode into charchoices array
+        for(String s:unicodeGrid.keySet()) //store all the unicode into charchoices array
         {
-        	Unicodemapper.add(new unicodeMapping(s, uniVals.get(s)));
+        	Unicodemapper.add(new unicodeMapping(s, unicodeGrid.get(s)));
         	
         }
        
@@ -118,6 +120,7 @@ public class Recogniser extends Activity {
 					Strokes=utils.Strokesloader.loadStrokes("/mnt/sdcard/Library.dat");
 					LutMatcher=new CharLUT(utils.Strokesloader.loadForwardLUT("/mnt/sdcard/LutLex.dat"));
 					Toast.makeText(getApplicationContext(),"reload successfull", Toast.LENGTH_SHORT).show();
+					mt.Strokes=Strokes;
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					Toast.makeText(getApplicationContext(), "reload failed", Toast.LENGTH_SHORT).show();
@@ -200,8 +203,8 @@ public class Recogniser extends Activity {
 				}
 				InputCharacter=UserDrawnStroke;//store globally;
 				 //oast.makeText(getApplicationContext(), UserDrawnStroke.s+"", Toast.LENGTH_SHORT).show();
-				performRecognition Recogniser=new performRecognition();
-				Recogniser.execute(UserDrawnStroke);
+				
+				new performRecognition().execute(UserDrawnStroke);
 			}
 		});
        
@@ -261,6 +264,7 @@ public class Recogniser extends Activity {
 					else
 					{
 						String preText=TextArea.getText().toString();
+						preText=preText.substring(0,preText.length()-1);
 						preText+=uniVals.get(charactername);
 						TextArea.setText(preText);						
 					}
@@ -294,7 +298,11 @@ public class Recogniser extends Activity {
 			
 					if(Charactersequences.size()==1)
 					{
+						mt.StrokeMatchnonCentroid(Charactersequences.get(0),InputCharacter);
+						Toast.makeText(context,"Success", Toast.LENGTH_SHORT).show();	
+						dialog.dismiss();
 						
+						/*
 						ArrayList<Character_Stroke> temp=mt.StrokeMatch(Charactersequences.get(0), InputCharacter);
 						finallist.clear(); //clear the final list 
 						for(Character_Stroke e:temp) //add all the individual strokes in the finallist!
@@ -315,6 +323,7 @@ public class Recogniser extends Activity {
 						{
 							Toast.makeText(context,finallist.get(z).getStroke_label()+":"+centroidinput.get(z)[0]+":"+centroidinput.get(z)[1],Toast.LENGTH_LONG).show();
 						}
+						*/
 						
 					}
 					
@@ -338,6 +347,12 @@ public class Recogniser extends Activity {
 									// TODO Auto-generated method stub
 									ImageView v=(ImageView) arga1.findViewById(R.id.imageView1);
 									String seq=(String) v.getTag(); //obtain the final sequence
+									
+									mt.StrokeMatchnonCentroid(seq,InputCharacter);
+									Toast.makeText(context,"Success", Toast.LENGTH_SHORT).show();
+									multiselect.dismiss();
+									
+									/*
 									ArrayList<Character_Stroke> temp=mt.StrokeMatch(seq, InputCharacter); //match with the Character
 									finallist.clear(); //clear the final list 
 									for(Character_Stroke e:temp) //add all the individual strokes in the finallist!
@@ -353,6 +368,7 @@ public class Recogniser extends Activity {
 									//
 									Toast.makeText(context,"Success", Toast.LENGTH_SHORT).show();
 									multiselect.dismiss();
+									*/
 									
 								}
 							});

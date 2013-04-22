@@ -53,15 +53,15 @@ public class CharLUT
 	}
 	public static String getStrokename(String temp)
 	{
-		String s="";
+		StringBuilder s=new StringBuilder();
 		int j=0;
 		while(j<temp.length())
 		{
 			if(Character.isDigit(temp.charAt(j))) //check if the character is a Digit
-				s+=temp.charAt(j);
+				s.append(temp.charAt(j));
 			j++;
 		}
-		return s.trim();
+		return s.toString();
 	}
 	
 	
