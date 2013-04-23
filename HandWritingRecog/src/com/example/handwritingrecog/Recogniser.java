@@ -51,6 +51,7 @@ public class Recogniser extends Activity {
 	Button combinecharacter;
 	Button Reload;
 	Button userCorrection; 
+	Button Exit;
 	ArrayAdapter<String> charchoiceAdapt;
 	ArrayList<float[]> InputCharacter; //to hold the UserInput Character after preprocessing
 	ArrayList<unicodeMapping> Unicodemapper=new ArrayList<unicodeMapping>();
@@ -92,13 +93,13 @@ public class Recogniser extends Activity {
 		}
        /************************ATTACH THE UI COMPONENTS*****************************************************/
        
-        PhoneEntry = ( EditText) findViewById(R.id.editText2);
         SendSMS=(Button) findViewById(R.id.button1);
         Reload=(Button) findViewById(R.id.button3);
         TextArea=(EditText) findViewById(R.id.editText1);
         mv=(GestureOverlayView) findViewById(R.id.gestureOverlayView1);
         combinecharacter=(Button) findViewById(R.id.button2);
         userCorrection=(Button) findViewById(R.id.button4);
+        Exit=(Button) findViewById(R.id.button_quit);
         
         /*********************************************************************************************************/
         
@@ -109,7 +110,15 @@ public class Recogniser extends Activity {
         }
        
         /*******************************************ATTACH THE LISTENERS******************************************/
-
+        Exit.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub
+				finish();
+				System.exit(0);
+			}
+		});
         Reload.setOnClickListener(new OnClickListener() {  //Listener for RefreshButton to reload the primary files
 			
 			@Override
@@ -146,19 +155,40 @@ public class Recogniser extends Activity {
 	            builder.setPositiveButton("SMS", new DialogInterface.OnClickListener() {
 	                public void onClick(DialogInterface dialog, int id) {
 	                    // User clicked OK button
-	                	String message=TextArea.getText().toString();
-	    				String PhoneNumber=PhoneEntry.getText().toString();
-	    				
-	    				if((PhoneNumber.equals("")||PhoneNumber==null))
-	    				{
-	    					Toast.makeText(getApplicationContext(),"No Phone Number Given",Toast.LENGTH_SHORT).show();
-	    				}
-	    				else
-	    				{
-	    					SmsManager smsManager = SmsManager.getDefault();
-	    					smsManager.sendTextMessage(PhoneNumber, null, message, null, null);
-	    					Toast.makeText(getApplicationContext(),"sent successfully",Toast.LENGTH_SHORT).show();
-	    				}
+	    				/*
+	    				 * SHOW SMS DIALOG HERE
+	    				 */
+
+	    	    	    final Dialog SMSdialog = new Dialog(context);
+	    	    	    SMSdialog.setTitle("SEND SMS ");
+	    				SMSdialog.setContentView(R.layout.dialog_sms);
+	    				final EditText SMScontent=(EditText) SMSdialog.findViewById(R.id.SMScontent);
+	    				SMScontent.setText(TextArea.getText().toString());//setting the text here
+	    				final EditText SMSNumberfield=(EditText) SMSdialog.findViewById(R.id.phnNumber);
+	    				final Button smsButton=(Button)SMSdialog.findViewById(R.id.button_sms);
+	    				smsButton.setOnClickListener(new OnClickListener() {
+							
+							@Override
+							public void onClick(View arg0) {
+								// TODO Auto-generated method stub
+								String message=SMScontent.getText().toString();
+			    				String PhoneNumber=SMSNumberfield.getText().toString();
+			    				
+			    				
+			    				if((PhoneNumber.equals("")||PhoneNumber==null))
+			    				{
+			    					Toast.makeText(getApplicationContext(),"No Phone Number Given",Toast.LENGTH_SHORT).show();
+			    				}
+			    				else
+			    				{
+			    					SmsManager smsManager = SmsManager.getDefault();
+			    					smsManager.sendTextMessage(PhoneNumber, null, message, null, null);
+			    					Toast.makeText(getApplicationContext(),"sent successfully",Toast.LENGTH_SHORT).show();
+			    					SMSdialog.dismiss();
+			    				}
+							}
+						});
+	    				SMSdialog.show();
 	                }
 	            });
 	            builder.setNegativeButton("EMAIL", new DialogInterface.OnClickListener() {
@@ -264,9 +294,25 @@ public class Recogniser extends Activity {
 					else
 					{
 						String preText=TextArea.getText().toString();
-						preText=preText.substring(0,preText.length()-1);
-						preText+=uniVals.get(charactername);
-						TextArea.setText(preText);						
+						
+						if(InputCharacter==null)
+						{						
+							preText+=uniVals.get(charactername);
+							TextArea.setText(preText);
+							dialog.dismiss();
+							return;
+						}
+						else
+						{
+							if(preText.length()!=0)
+							{
+								preText=preText.substring(0,preText.length()-1);
+							}						
+							preText+=uniVals.get(charactername);
+							TextArea.setText(preText);
+						}
+							
+						
 					}
 					/*
 					 * Number of Characters found

@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 /*********************************ADAPTER CLASS FOR MULTISELECT DISPLAY************************************************************************/
 public class customadaptermulti extends ArrayAdapter<String> { 
@@ -28,7 +29,6 @@ public class customadaptermulti extends ArrayAdapter<String> {
 		obj=t;
 		this.context=context;
 		characterStrokes=tz;
-
 	}
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {//set an Image and set its tag
@@ -41,13 +41,22 @@ public class customadaptermulti extends ArrayAdapter<String> {
 		    convertView = inflater.inflate(R.layout.editcharacter, parent, false);
 		}
 		ImageView img=(ImageView) convertView.findViewById(R.id.imageView1);
+		System.out.println("debugSeq:"+obj.get(i)+":"+obj.get(i).length());
+		for(String s:characterStrokes.keySet())
+		{
+			System.out.println("debug:"+s+":"+s.length());
+		}
+		
 		img.setImageBitmap(getImage(characterStrokes.get(obj.get(i)))); //pass the corresponding Stroke Sequence
 		img.setTag(obj.get(i));
 		return convertView;
 	}
 	private Bitmap getImage(ArrayList<Character_Stroke> temp) //create ImageThumbnails
 	{
-
+		if(temp==null)
+			System.out.println("debug:null recieved");
+		else
+			System.out.println("debug:"+temp.size());
 		Paint pt=new Paint();
 		pt.setColor(Color.BLACK);
 		pt.setStrokeWidth(10);
