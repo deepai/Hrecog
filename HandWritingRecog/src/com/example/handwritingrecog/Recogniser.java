@@ -563,6 +563,7 @@ public class Recogniser extends Activity {
 			super.onPostExecute(result);
 			
 				String previoustext=TextArea.getText().toString();
+				Toast.makeText(getApplicationContext(), "result:"+result,Toast.LENGTH_SHORT).show();
 				String newresult=uniVals.get(LutMatcher.LUTforward.get(result));
 				if(newresult==null)
 				{
