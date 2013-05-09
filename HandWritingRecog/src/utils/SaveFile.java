@@ -23,4 +23,14 @@ public class SaveFile {
 		}
 		return t;
 	}
+	public static boolean exists(String name) 
+	{
+		
+			File f=new File(name);
+			if(!f.exists())
+				return false;
+			else
+				return true;				
+			
+	}
 }
