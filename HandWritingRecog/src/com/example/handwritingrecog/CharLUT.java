@@ -32,7 +32,9 @@ public class CharLUT
 		/*
 		 * //function to get all the numerical value of the Strokes and discard the suffixes
 		 * ex. 2a 3b 4c becomes 2 3 4
+		 * 
 		 */
+			
 			Arrays.sort(stroke_seq);
 			String s=" ";
 			for(int i=0;i<stroke_seq.length;i++)
@@ -40,10 +42,9 @@ public class CharLUT
 				
 				String temp=stroke_seq[i];
 				int j=0;
-				while(j<temp.length())
+				while(j<temp.length() && Character.isDigit(temp.charAt(j)))
 				{
-					if(Character.isDigit(temp.charAt(j))) //check if the character is a Digit
-						s+=temp.charAt(j);
+					s+=temp.charAt(j);
 					j++;
 				}
 				s+=" ";
