@@ -162,7 +162,7 @@ public class Matcher {
 				 LRUReplace(CharLUT.getStrokename(ClassRecognizedMin),InputCharacter.get(i),Strokes);
 				//Strokes.put(CharLUT.getStrokename(ClassRecognizedMin)+"_x",InputCharacter.get(i));				
 			  }
-			SaveFile.WriteFile("/mnt/sdcard/HWREcogfiles/Library.dat",Strokes);
+			//SaveFile.WriteFile("/mnt/sdcard/HWREcogfiles/Library.dat",Strokes);
 			result="successfully added "+Strokesadded;
 			}catch(Exception e)
 			{

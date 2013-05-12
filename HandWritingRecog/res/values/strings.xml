@@ -1,10 +1,82 @@
 <resources>
 
-    <string name="app_name">HandWritingRecog</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="app_name">ISIMS</string>
+    <string name="hello_world">ISI Messaging Service</string>
     <string name="menu_settings">Settings</string>
-    <string name="title_activity_recogniser">Recogniser</string>
+    <string name="title_activity_recogniser">ISIMS</string>
     <string name="displayText">We are not able to correctly Identify the character that you have drawn and in order to Improve the accuracy of the software,we would like you to choose the correct character that you had intended to draw.
        </string>
+	<string name="README">
+	    
+<![CDATA[
+<b><font color=\'"#ffff0000"\'>HOW TO USE</font></b><br>
+<br>
 
+<i>This is a Handwriting Recognition App which is in beta phase.
+In order to use the app,see the following instructions</i><br><br>
+
+<ul>
+  <li>You must draw a character one at a time including its corresponing maatra e.g ক </li>
+  <li>after drawing a character wait for about 1 sec for it to be recognized.and then proceed with the second character </li>
+</ul>
+<br><br>
+
+<b>Correction</b>
+<br><br>
+<i>
+The app maynot correctly recognise the character initially , the user may then press on the Correct button to select the corresponding correct character,
+On pressing the correct button,user should then select which he/she thinks is the correct character.
+The vowel modifiers are associated with the character ক so as to display them(vowel modifiers unicode need to be combined with other values to be displayed).
+</i>
+<br><br>
+If however the character is not recognised as any valid character the program will automatically display the correction dialog for the user.
+
+<br><br>
+<b>Space button</b><br>
+For giving spaces in the text area
+<br><br>
+
+<b>Backspace button</b><br>
+for giving backspaces in the text area<br><br>
+
+<b>SMS/EMAIL</b><br>
+This button is used to forward the text as either sms or email<br><br>
+
+<b>Combine</b><br>
+
+The combine button is used to combine two letters to form compound character(JUKTAKHOR).
+In order to combine two characters such as ক and ত = ক্ত .depending on the unicode support of the android library ,sometimes rendering problem might occur while rendering the compound character.
+to combine ক  and ত = ক্ত we just draw ক followed by ত and then press combine which will affect the last two characters to form ক্ত. <br>
+]]>
+</string>
+<string name="termsandcondtions">
+All rights are reserved.
+
+Redistribution and use in source and binary forms, with or without 
+modification, are permitted provided that the following conditions are 
+met:
+
+    * Redistributions of source code must retain this notice including 
+	  this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce this notice including 
+	  this list of conditions and the following disclaimer in 
+      the documentation and/or other materials provided with the distribution
+    * Neither the name of the Indian Statistical Institute, Kolkata nor the names 
+      of its contributors may be used to endorse or promote products derived 
+      from this software without specific prior written permission.
+    * Any report preparation of which is directly or indirectly, partially or
+      wholly based on this software or its code should duly acknowledge. 	
+      
+THIS SOFTWARE IS PROVIDED BY ITS CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED 
+WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY 
+AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE OWNER OR 
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+POSSIBILITY OF SUCH DAMAGE.
+</string>
+<string name="contacts">Contacts</string>
 </resources>

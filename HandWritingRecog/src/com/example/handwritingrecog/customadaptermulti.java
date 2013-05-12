@@ -23,7 +23,7 @@ public class customadaptermulti extends ArrayAdapter<String> {
 	HashMap<String,ArrayList<Character_Stroke>> characterStrokes;
     ArrayList<String> obj;
     Context context = null;
-	private int width=1014;
+	private int width=1160;
 	private int height=648;
 	public customadaptermulti(Context context, int textViewResourceId,ArrayList<String> t,HashMap<String,ArrayList<Character_Stroke>> tz) {
 		super(context, textViewResourceId,t);

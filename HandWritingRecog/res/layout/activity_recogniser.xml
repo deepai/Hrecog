@@ -27,58 +27,88 @@
                 android:inputType="textMultiLine"
                 android:singleLine="true" />
 
-            <Button
-                android:id="@+id/button2"
+            <ImageButton
+                android:id="@+id/imageButton_backspace"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Combine"
-                android:textColor="#ffffff" />
+                android:layout_height="match_parent"
+                android:src="@android:drawable/ic_input_delete" />
 
-            <Button
-                android:id="@+id/button1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.07"
-                android:text="SMS/EMAIL"
-                android:textColor="#ffffff" />
-
-            <Button
-                android:id="@+id/button_clear"
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="#ffffff"
-                android:text="Clear" />
-
-            <Button
+            <ImageButton
                 android:id="@+id/button_quit"
-                style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Quit"
-                android:textColor="#ffffff" />
+                android:layout_height="match_parent"
+                android:src="@android:drawable/ic_delete" />
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical" >
+            android:orientation="horizontal" >
 
                 <android.gesture.GestureOverlayView
                     android:id="@+id/gestureOverlayView1"
-                    android:layout_width="match_parent"
+                    android:layout_width="1160dp"
                     android:layout_height="match_parent"
+                    android:gestureStrokeAngleThreshold="0"
+                    android:gestureStrokeSquarenessThreshold="0"
                     android:gestureStrokeType="multiple" >
-                    <ImageView
-                        android:id="@+id/imageView1"
+
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                       
-                        />
+                        android:layout_height="match_parent" >
+
+                        <ImageView
+                            android:id="@+id/imageView1"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent" />
+
+                    </LinearLayout>
 
                 </android.gesture.GestureOverlayView>
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="#150517"
+                    android:orientation="vertical" >
+
+                    <Button
+                        android:id="@+id/button_space"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Space"
+                        android:textColor="#ffffff" />
+
+                    <Button
+                        android:id="@+id/Button01"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Combine"
+                        android:textColor="#ffffff" />
+
+                    <Button
+                        android:id="@+id/button_clear"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Clear"
+                        android:textColor="#ffffff" />
+
+                    <Button
+                        android:id="@+id/button1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="SMS/EMAIL"
+                        android:textColor="#ffffff" />
+
+                    <Button
+                        android:id="@+id/button_help"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Help"
+                        android:textColor="#ffffff" />
+
+                </LinearLayout>
 
         </LinearLayout>
 

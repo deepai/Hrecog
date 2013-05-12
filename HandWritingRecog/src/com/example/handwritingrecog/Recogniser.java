@@ -1,9 +1,12 @@
 package com.example.handwritingrecog;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.example.handwritingrecog.DTWRecogniser;
 
@@ -15,6 +18,8 @@ import Character_Stroke.Character_Stroke;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.telephony.SmsManager;
+import android.text.Html;
+import android.text.method.ScrollingMovementMethod;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -23,6 +28,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -35,13 +41,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.gesture.Gesture;
 import android.gesture.GestureOverlayView;
 import android.gesture.GestureOverlayView.OnGestureListener;
 import android.gesture.GestureOverlayView.OnGesturePerformedListener;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 
 public class Recogniser extends Activity {
@@ -58,9 +65,13 @@ public class Recogniser extends Activity {
 	Button combinecharacter;
 	Button userCorrection; 
 	Button Clear;
-	Button Exit;
+	Button Spacebaar;
+	Button Help;
+	ImageButton Exit;
 	Bitmap preexist;
 	Bitmap currentGesture;
+	ImageButton revert;
+	ImageButton backspace;
 	ImageView img;
 	ArrayAdapter<String> charchoiceAdapt;
 	ArrayList<float[]> InputCharacter; //to hold the UserInput Character after preprocessing
@@ -68,14 +79,41 @@ public class Recogniser extends Activity {
 	Matcher mt;
 	String correctedChar;
 	SharedPreferences preference;
+	Bitmap Empty=Bitmap.createBitmap(11160,648,Bitmap.Config.ARGB_8888);
+	Bitmap currentbitmap=Empty;
 	final ArrayList<Character_Stroke> finallist=new ArrayList<Character_Stroke>();
 	
 	final Context context = this;
 	public HashMap<String, ArrayList<Character_Stroke>> characterStrokes;
     boolean showDialog=true;
 	private Paint pt=new Paint();
+	 ExecutorService executor = Executors.newFixedThreadPool(15);
     
     
+	@Override
+		protected void onStop() {
+			// TODO Auto-generated method stub
+			super.onStop();
+			utils.SaveFile.WriteFile("/mnt/sdcard/HWREcogfiles/Library.dat", Strokes); 
+		}
+	 
+	  protected void onRestart() {
+		  super.onRestart();
+		if(!utils.SaveFile.exists("/mnt/sdcard/HWREcogfiles/Library.dat"))
+      	{
+      		finish();       	
+      	}
+      	else
+      	{
+      		//load strokes
+      		try {
+				Strokes=utils.Strokesloader.loadStrokes("/mnt/sdcard/HWREcogfiles/Library.dat");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+      	}
+	  };
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,7 +123,6 @@ public class Recogniser extends Activity {
      /*****************************LOAD THE LIBRARY FILES*****************************************************/
     		
         	Intent intent=getIntent();
-        	
         	if(!utils.SaveFile.exists("/mnt/sdcard/HWREcogfiles/Library.dat"))
         	{
         		Strokes=(HashMap<String, float[]>) intent.getSerializableExtra("LIBRARY");
@@ -128,12 +165,14 @@ public class Recogniser extends Activity {
         SendSMS=(Button) findViewById(R.id.button1);
         TextArea=(EditText) findViewById(R.id.editText1);
         mv=(GestureOverlayView) findViewById(R.id.gestureOverlayView1);
-        combinecharacter=(Button) findViewById(R.id.button2);
+        combinecharacter=(Button) findViewById(R.id.Button01);
         userCorrection=(Button) findViewById(R.id.button4);
-        Exit=(Button) findViewById(R.id.button_quit);
+        Exit=(ImageButton) findViewById(R.id.button_quit);
         Clear=(Button) findViewById(R.id.button_clear);
-        img=(ImageView) mv.getChildAt(0);
-        
+        img=(ImageView)findViewById(R.id.imageView1);
+        Spacebaar=(Button) findViewById(R.id.button_space);
+        backspace=(ImageButton) findViewById(R.id.imageButton_backspace);
+        Help=(Button) findViewById(R.id.button_help);
         
         
         /*********************************************************************************************************/
@@ -148,13 +187,39 @@ public class Recogniser extends Activity {
         //img.setImageBitmap(Bitmap.createBitmap(mv.));
        
         /*******************************************ATTACH THE LISTENERS******************************************/
+
+        
         Exit.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
+				onStop();
 				finish();
 				System.exit(0);
+			}
+		});
+        backspace.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub
+				
+				String text=TextArea.getText().toString();
+				if(text!=null || text.length()>0)
+				{
+					text=text.substring(0,text.length()-1);
+					TextArea.setText(text);
+				}
+				
+			}
+		});
+        Spacebaar.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub
+				TextArea.append(" ");
 			}
 		});
         //mv.setAlwaysDrawnWithCacheEnabled(true);
@@ -166,10 +231,36 @@ public class Recogniser extends Activity {
 				// TODO Auto-generated method stub
 				mv.destroyDrawingCache();
 				img.setImageBitmap(null);
+				//Toast.makeText(getApplicationContext(), "height:"+mv.getHeight()+" width:"+mv.getWidth(),Toast.LENGTH_LONG).show();
 			}
 		});
         
+        Help.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub
+				final Dialog Helpdialog = new Dialog(context);
+	    	    Helpdialog.setTitle("Readme");
+				Helpdialog.setContentView(R.layout.dialogcorrection);
+				TextView et=(TextView) Helpdialog.findViewById(R.id.textView_help);
+				et.setMovementMethod(ScrollingMovementMethod.getInstance());
+				et.setText(Html.fromHtml(getResources().getString(R.string.README)));
+				Button bt=(Button) Helpdialog.findViewById(R.id.button_ok);
+				bt.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View arg0) {
+						// TODO Auto-generated method stub
+						Helpdialog.dismiss();
+					}
+				});
+				Helpdialog.show();
+		  }
+			
+		});
         
+      
         SendSMS.setOnClickListener(new OnClickListener() { //Listener for SMS and Email application
 			
 			@Override
@@ -249,11 +340,15 @@ public class Recogniser extends Activity {
 			}
 		});
       // mv.setDrawingCacheEnabled(true);
+      mv.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_LOW);
       mv.addOnGesturePerformedListener(new OnGesturePerformedListener() {
 		
 		@Override
 		public void onGesturePerformed(GestureOverlayView overlay, Gesture gesture) {
 			// TODO Auto-generated method stub
+			
+			//img.setImageBitmap(convert(currentbitmap));
+			
 			ArrayList<float[]> UserDrawnStroke=new ArrayList<float[]>(gesture.getStrokesCount()); //create an arraylist to temporary hold the float arrays
 			for(int i=0;i<gesture.getStrokesCount();i++)
 			{
@@ -267,8 +362,11 @@ public class Recogniser extends Activity {
 			 //oast.makeText(getApplicationContext(), UserDrawnStroke.s+"", Toast.LENGTH_SHORT).show();
 			
 			new performRecognition().execute(UserDrawnStroke);
+			
 		}
 	});
+	
+
       mv.addOnGestureListener(new OnGestureListener() {
 		
 		@Override
@@ -280,8 +378,25 @@ public class Recogniser extends Activity {
 		@Override
 		public void onGestureEnded(GestureOverlayView arg0, MotionEvent arg1) {
 			// TODO Auto-generated method stub
-			Bitmap bt=Bitmap.createBitmap(arg0.getDrawingCache());
-			img.setImageBitmap(bt);
+			
+			currentbitmap=Bitmap.createBitmap(arg0.getDrawingCache());
+			executor.execute(new Runnable() {
+				
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					
+					runOnUiThread(new Runnable() {
+						
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							img.setImageBitmap(convert(currentbitmap));
+						}
+					});
+				}
+			});
+			
 			mv.setDrawingCacheEnabled(false);
 		}
 		
@@ -331,7 +446,18 @@ public class Recogniser extends Activity {
         /************************Matcher Ends here*****************************************************/
         
     }
+    public Bitmap convert(Bitmap myBitmap)
+    {
+    	 int [] pixels = new int [ myBitmap.getHeight()*myBitmap.getWidth()];
+		 myBitmap.getPixels(pixels, 0, myBitmap.getWidth(), 0, 0, myBitmap.getWidth(),myBitmap.getHeight());
+    	 for(int i =0; i<myBitmap.getHeight()*myBitmap.getWidth();i++){
+    	  if( pixels[i] == Color.YELLOW)
+    	              pixels[i] = Color.RED;
+    	  }
 
+    	   myBitmap.setPixels(pixels, 0, myBitmap.getWidth(), 0, 0, myBitmap.getWidth(), myBitmap.getHeight());
+    	   return myBitmap;
+    }
     public void StrokeMatcher(int type)   //Stroke Matcher function
 
     {
@@ -383,11 +509,19 @@ public class Recogniser extends Activity {
 					*/
 					if(InputCharacter.size()==1) //handle single Stroke
 					{
-						String InputCharName=mt.getSingleStrokeName(charactername);
+						final String InputCharName=mt.getSingleStrokeName(charactername);
 						if(InputCharName!=null)
 						{
-							LRUReplace(InputCharName, InputCharacter.get(0), Strokes);
-							SaveFile.WriteFile("/mnt/sdcard/HWREcogfiles/Library.dat",Strokes);
+							executor.execute(new Runnable() {
+								
+								@Override
+								public void run() {
+									// TODO Auto-generated method stub
+									LRUReplace(InputCharName, InputCharacter.get(0), Strokes);
+									//SaveFile.WriteFile("/mnt/sdcard/HWREcogfiles/Library.dat",Strokes);
+								}
+							});
+							
 							Toast.makeText(context,"Successfully saved the stroke", Toast.LENGTH_SHORT).show();	
 							dialog.dismiss();//
 						}
@@ -468,6 +602,14 @@ public class Recogniser extends Activity {
 		 canvas.drawBitmap(bt,0,0,pt);
 		return bmOverlay;
 	       
+	}
+    private Bitmap codec(Bitmap src, Bitmap.CompressFormat format,
+			int quality) {
+		ByteArrayOutputStream os = new ByteArrayOutputStream();
+		src.compress(format, quality, os);
+ 
+		byte[] array = os.toByteArray();
+		return BitmapFactory.decodeByteArray(array, 0, array.length);
 	}
     public String unicodeVowelMod(String str)
 	{ 

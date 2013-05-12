@@ -6,26 +6,21 @@
     android:orientation="vertical" >
 
     <TextView
-        android:id="@+id/textView1"
+        android:id="@+id/textView_help"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_weight="0.11"
-        android:text="@string/displayText"
+        android:padding="20dp"
+        android:scrollbars="vertical"
+        android:singleLine="false"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="#ffffff" />
-
-    <CheckBox
-        android:id="@+id/checkBox1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0.04"
-        android:text="Donot Show the Dialog again" 
-        android:textColor="#ffffff"/>
+        android:textColor="@android:color/secondary_text_dark_nodisable" />
 
     <Button
         android:id="@+id/button_ok"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Ok" />
+        android:text="Ok"
+        android:textColor="#ffffff" />
 
 </LinearLayout>
