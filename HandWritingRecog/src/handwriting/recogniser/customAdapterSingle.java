@@ -1,7 +1,9 @@
-package com.example.handwritingrecog;
+package handwriting.recogniser;
+
 
 import java.util.ArrayList;
 import java.util.Collections;
+
 
 import android.content.Context;
 import android.view.LayoutInflater;

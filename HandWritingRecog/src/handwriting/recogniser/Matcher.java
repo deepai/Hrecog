@@ -1,4 +1,4 @@
-package com.example.handwritingrecog;
+package handwriting.recogniser;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;

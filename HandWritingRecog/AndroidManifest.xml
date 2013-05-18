@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.handwritingrecog"
+    package="handwriting.recogniser"
     android:versionCode="1"
     android:versionName="1.0" android:installLocation="preferExternal">
 
@@ -19,7 +19,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Recogniser" android:label="@string/title_activity_recogniser" android:hardwareAccelerated="true">
+        <activity android:name="Recogniser" android:label="@string/title_activity_recogniser" android:hardwareAccelerated="true">
         </activity>
         
         

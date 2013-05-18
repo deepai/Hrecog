@@ -1,4 +1,4 @@
-package com.example.handwritingrecog;
+package handwriting.recogniser;
 
 
 public class Stroke implements Comparable<Stroke>{

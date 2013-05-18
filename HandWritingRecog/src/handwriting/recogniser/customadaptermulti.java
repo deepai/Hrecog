@@ -1,8 +1,10 @@
-package com.example.handwritingrecog;
+package handwriting.recogniser;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+
 import Character_Stroke.Character_Stroke;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -15,7 +17,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 /*********************************ADAPTER CLASS FOR MULTISELECT DISPLAY************************************************************************/
 public class customadaptermulti extends ArrayAdapter<String> { 
@@ -44,12 +45,7 @@ public class customadaptermulti extends ArrayAdapter<String> {
 		}
 		ImageView img=(ImageView) convertView.findViewById(R.id.imageView1);
 		
-		/*System.out.println("debugSeq:"+obj.get(i)+":"+obj.get(i).length());
-		for(String s:characterStrokes.keySet())
-		{
-			System.out.println("debug:"+s+":"+s.length());
-		}
-		*/
+		
 		Bitmap bp=getImage(characterStrokes.get(obj.get(i)));
 		bp=codec(bp,Bitmap.CompressFormat.JPEG,20);
 		img.setImageBitmap(bp); //pass the corresponding Stroke Sequence
@@ -77,7 +73,7 @@ public class customadaptermulti extends ArrayAdapter<String> {
 	 * Set the image as the background 	
 	 */
 		
-		Bitmap bp=Bitmap.createBitmap(width,height,Bitmap.Config.ARGB_8888);
+		Bitmap bp=Bitmap.createBitmap(width,height,Bitmap.Config.RGB_565);
 		Canvas ct=new Canvas(bp);
 		ct.drawColor(Color.WHITE);
 		for(Character_Stroke s:temp)

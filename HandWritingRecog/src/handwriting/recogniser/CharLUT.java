@@ -1,9 +1,7 @@
-package com.example.handwritingrecog;
+package handwriting.recogniser;
 
 import java.util.Arrays;
 import java.util.HashMap;
-
-
 public class CharLUT
 {
 	public HashMap<String,String> LUTforward;

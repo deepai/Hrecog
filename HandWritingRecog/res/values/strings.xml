@@ -1,9 +1,9 @@
 <resources>
 
-    <string name="app_name">ISIMS</string>
-    <string name="hello_world">ISI Messaging Service</string>
+    <string name="app_name">Handwriting Recogniser(Bangla)</string>
+    <string name="hello_world">Handwriting Recogniser</string>
     <string name="menu_settings">Settings</string>
-    <string name="title_activity_recogniser">ISIMS</string>
+    <string name="title_activity_recogniser">Handwriting Recogniser</string>
     <string name="displayText">We are not able to correctly Identify the character that you have drawn and in order to Improve the accuracy of the software,we would like you to choose the correct character that you had intended to draw.
        </string>
 	<string name="README">
@@ -12,21 +12,30 @@
 <b><font color=\'"#ffff0000"\'>HOW TO USE</font></b><br>
 <br>
 
-<i>This is a Handwriting Recognition App which is in beta phase.
-In order to use the app,see the following instructions</i><br><br>
+<i>This is an application of Bangla (2nd most popular Indic script) Handwriting Recognition. Its maiden (beta) version is 
+uploaded for its distribution among Android (tested for Honeycomb only) Tab users. This application may be conveniently 
+used for sending email or SMS in Bangla by writing the content using finger tip on the touch screen of the device. This 
+application is user adaptive in the sense that during initial use by a new user, frequent errors are expected and the 
+recognitiomn error should decrease fast with the entering of corrections during its repeated use.  
+Before you start to use this application, please read the following instructions carefully. </i><br><br>
 
 <ul>
-  <li>You must draw a character one at a time including its corresponing maatra e.g ক </li>
-  <li>after drawing a character wait for about 1 sec for it to be recognized.and then proceed with the second character </li>
+  <li>You must draw one character (single or multiple strokes) at a time (e.g ক) including its matra (headline), if the authors 
+  is used to give such matra during handwriting.  </li><br>
+  <li>Initially, the color of the drawing is yellow and it turns red after a while. The user should wait until the drawn symbol 
+  changes its color. After the above color change, the author should look at the white text area placed at the top of the screen. 
+  If the character is wrongly recognized, then the "Correct" button should be used for necessary modification.  
+  </li>
 </ul>
 <br><br>
 
 <b>Correction</b>
 <br><br>
 <i>
-The app maynot correctly recognise the character initially , the user may then press on the Correct button to select the corresponding correct character,
-On pressing the correct button,user should then select which he/she thinks is the correct character.
-The vowel modifiers are associated with the character ক so as to display them(vowel modifiers unicode need to be combined with other values to be displayed).
+If the app fails to recognise the input character correctly, the user should press the "Correct" button to select 
+the corresponding correct character. On pressing the correct button, a table of possible characters appears from
+which the user should select the correct character.
+The vowel modifiers are associated with the character ক  so as to display them(vowel modifiers unicode need to be combined with other values to be displayed).
 </i>
 <br><br>
 If however the character is not recognised as any valid character the program will automatically display the correction dialog for the user.
@@ -44,28 +53,31 @@ This button is used to forward the text as either sms or email<br><br>
 
 <b>Combine</b><br>
 
-The combine button is used to combine two letters to form compound character(JUKTAKHOR).
-In order to combine two characters such as ক and ত = ক্ত .depending on the unicode support of the android library ,sometimes rendering problem might occur while rendering the compound character.
-to combine ক  and ত = ক্ত we just draw ক followed by ত and then press combine which will affect the last two characters to form ক্ত. <br>
+The present Beta version does not allow the writer to input a compound Bangla character (ক্ত) directly. Instead the writer
+should write the two concerned characters consecutively (such as কত for the above example ক্ত) and then press the combine 
+button to combine the two letters forming the shape of the concerned compound character(JUKTAKHOR).
+Depending on the unicode support of the OS, sometimes rendering problem might occur failing to display the compound 
+character properly. However, the receipient of the message will see it correctly.
+<br>
 ]]>
 </string>
 <string name="termsandcondtions">
 All rights are reserved.
 
-Redistribution and use in source and binary forms, with or without 
+Redistribution and use in binary form, with or without 
 modification, are permitted provided that the following conditions are 
-met:
+met:\n\n
 
     * Redistributions of source code must retain this notice including 
-	  this list of conditions and the following disclaimer.
+	  this list of conditions and the following disclaimer.\n
     * Redistributions in binary form must reproduce this notice including 
 	  this list of conditions and the following disclaimer in 
-      the documentation and/or other materials provided with the distribution
+      the documentation and/or other materials provided with the distribution\n
     * Neither the name of the Indian Statistical Institute, Kolkata nor the names 
       of its contributors may be used to endorse or promote products derived 
-      from this software without specific prior written permission.
+      from this software without specific prior written permission.\n
     * Any report preparation of which is directly or indirectly, partially or
-      wholly based on this software or its code should duly acknowledge. 	
+      wholly based on this software or its code should be duly acknowledged. \n\n	
       
 THIS SOFTWARE IS PROVIDED BY ITS CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED 
 WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY 
@@ -76,7 +88,20 @@ SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
 INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
 CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
-POSSIBILITY OF SUCH DAMAGE.
+POSSIBILITY OF SUCH DAMAGE.\n
 </string>
-<string name="contacts">Contacts</string>
+<string name="contacts">
+<![CDATA[
+<b>Ujjwal Bhattacharya</b>
+<br>
+<b>Computer Vision and Pattern Recognition Unit</b><br>
+<b>Indian Statistical Institute</b><br>
+<hr>
+<br>
+  Phone : +91 33 2575 2854 <br>
+  Fax	: +91 33 2577 3035 <br> 
+  Secretarial Help :  +91 33 2575 2850 <br>
+  Email : ujjwal@isical.ac.in
+]]>
+</string>
 </resources>

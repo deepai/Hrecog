@@ -1,4 +1,4 @@
-package com.example.handwritingrecog;
+package handwriting.recogniser;
 public class DTWRecogniser {
 
 	public static double DTWDistance(float[] input,float[] meanVector)

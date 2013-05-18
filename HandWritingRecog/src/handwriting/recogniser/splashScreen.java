@@ -1,4 +1,4 @@
-package com.example.handwritingrecog;
+package handwriting.recogniser;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;

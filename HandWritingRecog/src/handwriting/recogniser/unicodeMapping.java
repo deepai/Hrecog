@@ -1,4 +1,4 @@
-package com.example.handwritingrecog;
+package handwriting.recogniser;
 
 public class unicodeMapping implements Comparable<unicodeMapping> {
 	public String Charactername;
