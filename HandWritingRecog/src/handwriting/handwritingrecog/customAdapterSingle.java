@@ -2,9 +2,6 @@ package handwriting.handwritingrecog;
 
 import java.util.ArrayList;
 import java.util.Collections;
-
-
-import android.R;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;

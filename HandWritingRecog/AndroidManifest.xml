@@ -7,11 +7,8 @@
         android:minSdkVersion="12" android:targetSdkVersion="12"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.SEND_SMS"/>
-    <supports-screens android:smallScreens="false"
-                  android:normalScreens="false"
-                  android:largeScreens="true"
-                  android:xlargeScreens="true"
-                  android:requiresSmallestWidthDp="600" android:resizeable="false"/>
+    <supports-screens android:resizeable="false" android:smallScreens="false" android:normalScreens="false" android:anyDensity="true" android:xlargeScreens="true" android:largeScreens="true"/>
+    
 
     <application
         android:icon="@drawable/ic_launcher"
