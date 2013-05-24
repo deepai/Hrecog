@@ -1,4 +1,4 @@
-package handwriting.recogniser;
+package handwriting.handwritingrecog;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
@@ -6,6 +6,7 @@ import java.util.HashMap;
 
 
 import Character_Stroke.Character_Stroke;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -46,8 +47,8 @@ public class customadaptermulti extends ArrayAdapter<String> {
 		ImageView img=(ImageView) convertView.findViewById(R.id.imageView1);
 		
 		
-		Bitmap bp=getImage(characterStrokes.get(obj.get(i)));
-		bp=codec(bp,Bitmap.CompressFormat.JPEG,20);
+		Bitmap bp=Bitmap.createScaledBitmap(getImage(characterStrokes.get(obj.get(i))), 200,200, true);
+		//bp=codec(bp,Bitmap.CompressFormat.JPEG,20);
 		img.setImageBitmap(bp); //pass the corresponding Stroke Sequence
 		img.setTag(obj.get(i));
 		return convertView;

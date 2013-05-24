@@ -1,25 +1,30 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="handwriting.recogniser"
-    android:versionCode="1"
-    android:versionName="1.0" android:installLocation="preferExternal">
+    package="handwriting.handwritingrecog"
+    android:versionCode="3"
+    android:versionName="1.2" android:installLocation="preferExternal">
 
     <uses-sdk
-        android:minSdkVersion="8" android:targetSdkVersion="15"/>
+        android:minSdkVersion="12" android:targetSdkVersion="12"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.SEND_SMS"/>
+    <supports-screens android:smallScreens="false"
+                  android:normalScreens="false"
+                  android:largeScreens="true"
+                  android:xlargeScreens="true"
+                  android:requiresSmallestWidthDp="600" android:resizeable="false"/>
 
     <application
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" android:largeHeap="true" android:hardwareAccelerated="true" >
-        <activity android:name="splashScreen" android:permission="android.permission.WRITE_EXTERNAL_STORAGE" android:noHistory="true" android:label="ISIMS" android:hardwareAccelerated="true">
+        <activity android:name="splashScreen" android:permission="android.permission.WRITE_EXTERNAL_STORAGE" android:noHistory="true" android:label="Handwriting Recognition(bangla)" android:hardwareAccelerated="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="Recogniser" android:label="@string/title_activity_recogniser" android:hardwareAccelerated="true">
+        <activity android:name="handwriting.handwritingrecog.Recogniser" android:label="@string/title_activity_recogniser" android:hardwareAccelerated="true" android:configChanges="orientation">
         </activity>
         
         

@@ -58,7 +58,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent" >
 
-                        <handwriting.recogniser.customview
+                        <handwriting.handwritingrecog.customview
                             android:id="@+id/customview1"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content" />

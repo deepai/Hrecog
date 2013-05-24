@@ -1,4 +1,4 @@
-package handwriting.recogniser;
+package handwriting.handwritingrecog;
 
 
 public class Stroke implements Comparable<Stroke>{
@@ -26,4 +26,4 @@ public class Stroke implements Comparable<Stroke>{
     	else 
     		return 1;
     }
-	}
+}

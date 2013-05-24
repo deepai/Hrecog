@@ -1,6 +1,6 @@
-package handwriting.recogniser;
+package handwriting.handwritingrecog;
 
-import handwriting.recogniser.DTWRecogniser;
+import handwriting.handwritingrecog.DTWRecogniser;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -572,8 +572,7 @@ public class Recogniser extends Activity {
 								Toast.LENGTH_SHORT).show();
 						dialog.dismiss();//
 					} else {
-						Toast.makeText(context, "Found Null",
-								Toast.LENGTH_SHORT).show();
+						//Toast.makeText(context, "Found Null",Toast.LENGTH_SHORT).show();
 						dialog.dismiss();//
 					}
 					return;
@@ -605,10 +604,12 @@ public class Recogniser extends Activity {
 					dialog.dismiss();
 					if (Charactersequences.size() != 0) {
 						final Dialog multiselect = new Dialog(context);
+						multiselect.setTitle("Choose Character Style");
 						multiselect.setContentView(R.layout.dialogmulchoice); // show
 																				// the
 																				// multiple
 																				// dialog
+						
 						ListView lv = (ListView) multiselect
 								.findViewById(R.id.listView12);
 						customadaptermulti adapter = new customadaptermulti(
@@ -747,8 +748,7 @@ public class Recogniser extends Activity {
 			super.onPostExecute(result);
 
 			String previoustext = TextArea.getText().toString();
-			Toast.makeText(getApplicationContext(), "result:" + result,
-					Toast.LENGTH_SHORT).show();
+			//Toast.makeText(getApplicationContext(), "result:" + result,Toast.LENGTH_SHORT).show();
 			String newresult = uniVals.get(LutMatcher.LUTforward.get(result));
 			if (newresult == null) {
 				StrokeMatcher(1);
@@ -758,8 +758,7 @@ public class Recogniser extends Activity {
 				previoustext += newresult;
 
 				TextArea.setText(previoustext);
-				Toast.makeText(getApplicationContext(), result,
-						Toast.LENGTH_SHORT).show();
+				//Toast.makeText(getApplicationContext(), result,Toast.LENGTH_SHORT).show();
 			}
 
 		}
