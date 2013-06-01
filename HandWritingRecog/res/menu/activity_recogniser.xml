@@ -1,2 +1,10 @@
+
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/item_combine" 
+        android:title="Combine"       
+        android:showAsAction="ifRoom|withText" android:visible="true" android:icon="@drawable/combine"></item>
+    <item android:id="@+id/item_space" android:title="Space" android:showAsAction="ifRoom|withText" android:icon="@drawable/space"></item>
+    <item android:id="@+id/item_clear" android:title="Clear" android:showAsAction="ifRoom|withText" android:icon="@drawable/clear"></item>
+    <item android:id="@+id/item_send" android:title="Send" android:showAsAction="ifRoom|withText" android:icon="@drawable/email"></item>
+    <item android:id="@+id/item_help" android:title="Help" android:showAsAction="ifRoom|withText" android:icon="@drawable/help"></item>
 </menu>

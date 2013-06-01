@@ -174,7 +174,7 @@ public class Matcher {
 		@Override
 		protected void onPostExecute(String result) {
 			// TODO Auto-generated method stub
-			Toast.makeText(ct,result, Toast.LENGTH_SHORT).show();
+			//Toast.makeText(ct,result, Toast.LENGTH_SHORT).show();
 		}
 	}
 	

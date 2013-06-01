@@ -1,6 +1,5 @@
 package handwriting.handwritingrecog;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -9,7 +8,6 @@ import Character_Stroke.Character_Stroke;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -52,14 +50,6 @@ public class customadaptermulti extends ArrayAdapter<String> {
 		img.setImageBitmap(bp); //pass the corresponding Stroke Sequence
 		img.setTag(obj.get(i));
 		return convertView;
-	}
-	private Bitmap codec(Bitmap src, Bitmap.CompressFormat format,
-			int quality) {
-		ByteArrayOutputStream os = new ByteArrayOutputStream();
-		src.compress(format, quality, os);
- 
-		byte[] array = os.toByteArray();
-		return BitmapFactory.decodeByteArray(array, 0, array.length);
 	}
 	private Bitmap getImage(ArrayList<Character_Stroke> temp) //create ImageThumbnails
 	{

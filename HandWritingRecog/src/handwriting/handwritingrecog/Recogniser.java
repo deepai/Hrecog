@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 import preprocessing.Scaling;
 import preprocessing.smoothing;
 import Character_Stroke.Character_Stroke;
@@ -17,6 +16,9 @@ import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.text.Html;
 import android.text.method.ScrollingMovementMethod;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -44,25 +46,21 @@ import android.gesture.GestureOverlayView;
 import android.gesture.GestureOverlayView.OnGestureListener;
 import android.gesture.GestureOverlayView.OnGesturePerformedListener;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.Path;
 
 public class Recogniser extends Activity {
+	
 	/********************************************* Fields **************************************/
-	HashMap<String, float[]> Strokes;
+	private static final String PREFS_NAME = "HandwritingRecogData";
+	HashMap<String, float[]> Strokes,Strokesbackup;
 	HashMap<String, ArrayList<String>> LUTback;
 	HashMap<String, String> uniVals;
 	HashMap<String, String> unicodeGrid;
 	CharLUT LutMatcher;
 	GestureOverlayView mv;
-	Button SendSMS;
 	EditText PhoneEntry;
 	EditText TextArea;
-	Button combinecharacter;
 	Button userCorrection;
-	Button Clear;
-	Button Spacebaar;
-	Button Help;
 	ImageButton Exit;
 	Bitmap preexist;
 	Bitmap currentGesture;
@@ -82,13 +80,23 @@ public class Recogniser extends Activity {
 	boolean showDialog = true;
 	ExecutorService executor = Executors.newFixedThreadPool(2);
 	Path gestureshape;
+	SharedPreferences settings;
+    
+
 
 	@Override
 	protected void onStop() {
 		// TODO Auto-generated method stub
 		super.onStop();
-		utils.SaveFile.WriteFile("/mnt/sdcard/HWREcogfiles/Library.dat",
-				Strokes);
+		utils.SaveFile.WriteFile("/mnt/sdcard/HWREcogfiles/Library.dat",Strokes);
+		if(TextArea.getText().length()>0)
+		{
+			SharedPreferences.Editor editor = settings.edit();
+	      	editor.putString("previous",TextArea.getText().toString());
+	      	editor.commit();
+		}
+			
+
 
 	}
 
@@ -99,8 +107,7 @@ public class Recogniser extends Activity {
 		} else {
 			// load strokes
 			try {
-				Strokes = utils.Strokesloader
-						.loadStrokes("/mnt/sdcard/HWREcogfiles/Library.dat");
+				Strokes = utils.Strokesloader.loadStrokes("/mnt/sdcard/HWREcogfiles/Library.dat");
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -109,11 +116,175 @@ public class Recogniser extends Activity {
 	};
 
 	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// TODO Auto-generated method stub
+		MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.activity_recogniser, menu);
+
+		return super.onCreateOptionsMenu(menu);
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// TODO Auto-generated method stub
+		    switch (item.getItemId()) {
+		        case R.id.item_combine:
+		        {
+		        	
+		        	String temp = TextArea.getText().toString();
+		        	if(temp.length()<2)
+		        		break;
+					String toCombine = TextArea.getText().toString().substring(temp.length() - 2);
+					String finalString = character.combineChar(toCombine);
+					String newString = TextArea.getText().toString()
+							.substring(0, temp.length() - 2);
+					newString += finalString;
+					TextArea.setText(newString);
+					// Toast.makeText(context,toCombine.length()+"",
+					// Toast.LENGTH_SHORT).show();
+					break;
+		        }
+		        case R.id.item_clear :
+		        {
+		        	img.clear();
+		        	break;
+		        }
+		        case R.id.item_help :
+		        {
+		        	final Dialog Helpdialog = new Dialog(context);
+					Helpdialog.setTitle("Readme");
+					Helpdialog.setContentView(R.layout.dialogcorrection);
+					TextView et = (TextView) Helpdialog
+							.findViewById(R.id.textView_help);
+					et.setMovementMethod(ScrollingMovementMethod.getInstance());
+					et.setText(Html.fromHtml(getResources().getString(
+							R.string.README)));
+					Button bt = (Button) Helpdialog.findViewById(R.id.button_ok);
+					bt.setOnClickListener(new OnClickListener() {
+
+						@Override
+						public void onClick(View arg0) {
+							// TODO Auto-generated method stub
+							Helpdialog.dismiss();
+						}
+					});
+					Helpdialog.show();
+					break;		        	
+		        }
+		        case R.id.item_send :
+		        {
+		        	AlertDialog.Builder builder = new AlertDialog.Builder(context);
+					builder.setMessage("SMS or EMAIL?").setTitle("CHOOSE WINDOW");
+					builder.setPositiveButton("SMS",
+							new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog, int id) {
+									// User clicked OK button
+									/*
+									 * SHOW SMS DIALOG HERE
+									 */
+
+									final Dialog SMSdialog = new Dialog(context);
+									SMSdialog.setTitle("SEND SMS ");
+									SMSdialog.setContentView(R.layout.dialog_sms);
+									final EditText SMScontent = (EditText) SMSdialog
+											.findViewById(R.id.SMScontent);
+									SMScontent.setText(TextArea.getText()
+											.toString());// setting the text here
+									final EditText SMSNumberfield = (EditText) SMSdialog
+											.findViewById(R.id.phnNumber);
+									final Button smsButton = (Button) SMSdialog
+											.findViewById(R.id.button_sms);
+									smsButton
+											.setOnClickListener(new OnClickListener() {
+
+												@Override
+												public void onClick(View arg0) {
+													// TODO Auto-generated method
+													// stub
+													String message = SMScontent
+															.getText().toString();
+													message = unicodeVowelMod(message);
+													String PhoneNumber = SMSNumberfield
+															.getText().toString();
+
+													if ((PhoneNumber.equals("") || PhoneNumber == null)) {
+														Toast.makeText(
+																getApplicationContext(),
+																"No Phone Number Given",
+																Toast.LENGTH_SHORT)
+																.show();
+													} else {
+														SmsManager smsManager = SmsManager
+																.getDefault();
+														smsManager
+																.sendTextMessage(
+																		PhoneNumber,
+																		null,
+																		message,
+																		null, null);
+														Toast.makeText(
+																getApplicationContext(),
+																"sent successfully",
+																Toast.LENGTH_SHORT)
+																.show();
+														SMSdialog.dismiss();
+													}
+												}
+											});
+									SMSdialog.show();
+								}
+							});
+					builder.setNegativeButton("EMAIL",
+							new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog, int id) {
+
+									/*
+									 * this part for email
+									 */
+									// TODO Auto-generated method stub
+									Intent email = new Intent(
+											android.content.Intent.ACTION_SEND);
+
+									/* Fill it with Data */
+									email.setType("plain/text");
+									email.putExtra(
+											android.content.Intent.EXTRA_TEXT,
+											unicodeVowelMod(TextArea.getText()
+													.toString()));
+
+									/* Send it off to the Activity-Chooser */
+									startActivity(Intent.createChooser(email,
+											"Send mail..."));
+								}
+							});
+
+					AlertDialog dialog = builder.create();
+					dialog.show();
+
+		        	break;
+		        }
+		        case R.id.item_space :
+		        {
+		        	TextArea.append(" ");
+		        	break;
+		        }
+		       
+		       
+		   
+		}
+		return super.onOptionsItemSelected(item);
+	}
+	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_recogniser);
+		
+		settings=getSharedPreferences(PREFS_NAME,0);
+		String valueprev=settings.getString("previous","");
+		
 		try {
 			/***************************** LOAD THE LIBRARY FILES *****************************************************/
+
 
 			Intent intent = getIntent();
 			/*
@@ -121,15 +292,19 @@ public class Recogniser extends Activity {
 			 * from the assets to the HWRecog Folder
 			 */
 			if (!utils.SaveFile.exists("/mnt/sdcard/HWREcogfiles/Library.dat")) {
-				Strokes = (HashMap<String, float[]>) intent.getSerializableExtra("LIBRARY");
+				Strokes = Strokesbackup=(HashMap<String, float[]>) intent.getSerializableExtra("LIBRARY");
 				File f = new File("/mnt/sdcard/HWREcogfiles");
 				f.mkdir();
-				utils.SaveFile.WriteFile(
-						"/mnt/sdcard/HWREcogfiles/Library.dat", Strokes);
+				utils.SaveFile.WriteFile("/mnt/sdcard/HWREcogfiles/Library.dat", Strokes);
 			} else {
-
-				Strokes = utils.Strokesloader
-						.loadStrokes("/mnt/sdcard/HWREcogfiles/Library.dat");
+				try{
+						Strokes = utils.Strokesloader.loadStrokes("/mnt/sdcard/HWREcogfiles/Library.dat");
+				}catch(Exception e)
+				{
+					//Strokes = (HashMap<String, float[]>) intent.getSerializableExtra("LIBRARY");
+					utils.SaveFile.WriteFile("/mnt/sdcard/HWREcogfiles/Library.dat", Strokesbackup);
+					Strokes=Strokesbackup;
+				}
 			}
 			/*
 			 * LutMatcher = ForwardLUT uniVals = CharacterMap for storage
@@ -139,16 +314,12 @@ public class Recogniser extends Activity {
 			 * character to strokesequences
 			 */
 
-			LutMatcher = new CharLUT(
-					(HashMap<String, String>) intent
-							.getSerializableExtra("LUTforward"));
+			LutMatcher = new CharLUT((HashMap<String, String>) intent.getSerializableExtra("LUTforward"));
 			uniVals = character.initvalue(); // load the character map
 			unicodeGrid = character.unicodeGridView(); // load the character map
 														// for unicode gridview
-			characterStrokes = (HashMap<String, ArrayList<Character_Stroke>>) intent
-					.getSerializableExtra("LUTCharStrokes");
-			LUTback = (HashMap<String, ArrayList<String>>) intent
-					.getSerializableExtra("LUTbackward");
+			characterStrokes = (HashMap<String, ArrayList<Character_Stroke>>) intent.getSerializableExtra("LUTCharStrokes");
+			LUTback = (HashMap<String, ArrayList<String>>) intent.getSerializableExtra("LUTbackward");
 
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
@@ -165,25 +336,20 @@ public class Recogniser extends Activity {
 		}
 		/************************ ATTACH THE UI COMPONENTS *****************************************************/
 
-		SendSMS = (Button) findViewById(R.id.button1); // SMS Button
 		TextArea = (EditText) findViewById(R.id.editText1); // TextArea for
 															// output unicode
+		TextArea.setText(valueprev);
 		mv = (GestureOverlayView) findViewById(R.id.gestureOverlayView1); // gestureoverlayview
 																			// for
 																			// display
-		combinecharacter = (Button) findViewById(R.id.Button01); // button for
-																	// character
-																	// combination
 		userCorrection = (Button) findViewById(R.id.button4); // Correct button
 		Exit = (ImageButton) findViewById(R.id.button_quit); // Finish App
-		Clear = (Button) findViewById(R.id.button_clear); // clear the screen
-		Spacebaar = (Button) findViewById(R.id.button_space); // for giving the
-																// space
+
 		backspace = (ImageButton) findViewById(R.id.imageButton_backspace); // for
 																			// giving
 																			// the
 																			// backspace
-		Help = (Button) findViewById(R.id.button_help);
+
 		img = (customview) findViewById(R.id.customview1); // background view
 															// for persisting
 															// the userdrawn
@@ -236,152 +402,7 @@ public class Recogniser extends Activity {
 				return false;
 			}
 		});
-		Spacebaar.setOnClickListener(new OnClickListener() { // spacebar button
-
-					@Override
-					public void onClick(View arg0) {
-						// TODO Auto-generated method stub
-						TextArea.append(" ");
-					}
-				});
-
-		Clear.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View arg0) {
-				img.clear(); // clear the view background persistance image
-			}
-		});
-
-		Help.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View arg0) {
-				// TODO Auto-generated method stub
-				final Dialog Helpdialog = new Dialog(context);
-				Helpdialog.setTitle("Readme");
-				Helpdialog.setContentView(R.layout.dialogcorrection);
-				TextView et = (TextView) Helpdialog
-						.findViewById(R.id.textView_help);
-				et.setMovementMethod(ScrollingMovementMethod.getInstance());
-				et.setText(Html.fromHtml(getResources().getString(
-						R.string.README)));
-				Button bt = (Button) Helpdialog.findViewById(R.id.button_ok);
-				bt.setOnClickListener(new OnClickListener() {
-
-					@Override
-					public void onClick(View arg0) {
-						// TODO Auto-generated method stub
-						Helpdialog.dismiss();
-					}
-				});
-				Helpdialog.show();
-			}
-
-		});
-
-		SendSMS.setOnClickListener(new OnClickListener() { // Listener for SMS
-															// and Email
-															// application
-
-			@Override
-			public void onClick(View arg0) {
-				// TODO Auto-generated method stub
-
-				/*
-				 * DISPLAY SMS AND EMAIL OPTIONS
-				 */
-
-				AlertDialog.Builder builder = new AlertDialog.Builder(context);
-				builder.setMessage("SMS or EMAIL?").setTitle("CHOOSE WINDOW");
-				builder.setPositiveButton("SMS",
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
-								// User clicked OK button
-								/*
-								 * SHOW SMS DIALOG HERE
-								 */
-
-								final Dialog SMSdialog = new Dialog(context);
-								SMSdialog.setTitle("SEND SMS ");
-								SMSdialog.setContentView(R.layout.dialog_sms);
-								final EditText SMScontent = (EditText) SMSdialog
-										.findViewById(R.id.SMScontent);
-								SMScontent.setText(TextArea.getText()
-										.toString());// setting the text here
-								final EditText SMSNumberfield = (EditText) SMSdialog
-										.findViewById(R.id.phnNumber);
-								final Button smsButton = (Button) SMSdialog
-										.findViewById(R.id.button_sms);
-								smsButton
-										.setOnClickListener(new OnClickListener() {
-
-											@Override
-											public void onClick(View arg0) {
-												// TODO Auto-generated method
-												// stub
-												String message = SMScontent
-														.getText().toString();
-												message = unicodeVowelMod(message);
-												String PhoneNumber = SMSNumberfield
-														.getText().toString();
-
-												if ((PhoneNumber.equals("") || PhoneNumber == null)) {
-													Toast.makeText(
-															getApplicationContext(),
-															"No Phone Number Given",
-															Toast.LENGTH_SHORT)
-															.show();
-												} else {
-													SmsManager smsManager = SmsManager
-															.getDefault();
-													smsManager
-															.sendTextMessage(
-																	PhoneNumber,
-																	null,
-																	message,
-																	null, null);
-													Toast.makeText(
-															getApplicationContext(),
-															"sent successfully",
-															Toast.LENGTH_SHORT)
-															.show();
-													SMSdialog.dismiss();
-												}
-											}
-										});
-								SMSdialog.show();
-							}
-						});
-				builder.setNegativeButton("EMAIL",
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
-
-								/*
-								 * this part for email
-								 */
-								// TODO Auto-generated method stub
-								Intent email = new Intent(
-										android.content.Intent.ACTION_SEND);
-
-								/* Fill it with Data */
-								email.setType("plain/text");
-								email.putExtra(
-										android.content.Intent.EXTRA_TEXT,
-										unicodeVowelMod(TextArea.getText()
-												.toString()));
-
-								/* Send it off to the Activity-Chooser */
-								startActivity(Intent.createChooser(email,
-										"Send mail..."));
-							}
-						});
-
-				AlertDialog dialog = builder.create();
-				dialog.show();
-
-			}
-		});
+		
 		mv.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_LOW);
 
 		mv.addOnGesturePerformedListener(new OnGesturePerformedListener() {
@@ -417,8 +438,7 @@ public class Recogniser extends Activity {
 							@Override
 							public void run() {
 								// TODO Auto-generated method stub
-								new performRecognition()
-										.execute(InputCharacter);
+								new performRecognition().execute(InputCharacter);
 							}
 						});
 					}
@@ -437,7 +457,7 @@ public class Recogniser extends Activity {
 			@Override
 			public void onGestureEnded(GestureOverlayView arg0, MotionEvent arg1) {
 				gestureshape = arg0.getGesturePath();
-				img.drwshp(gestureshape);
+				img.drwshp(gestureshape,arg0.getWidth(),arg0.getHeight());
 			}
 
 			@Override
@@ -454,28 +474,7 @@ public class Recogniser extends Activity {
 			}
 		});
 
-		combinecharacter.setOnClickListener(new OnClickListener() { // Listener
-																	// for
-																	// Combine
-																	// character
-																	// function
-
-					@Override
-					public void onClick(View arg0) {
-						// TODO Auto-generated method stub
-						String temp = TextArea.getText().toString();
-						String toCombine = TextArea.getText().toString()
-								.substring(temp.length() - 2);
-						String finalString = character.combineChar(toCombine);
-						String newString = TextArea.getText().toString()
-								.substring(0, temp.length() - 2);
-						newString += finalString;
-						TextArea.setText(newString);
-						// Toast.makeText(context,toCombine.length()+"",
-						// Toast.LENGTH_SHORT).show();
-					}
-				});
-
+		
 		// img.setImageBitmap(Bitmap.createBitmap(img.getWidth(),img.getHeight(),Bitmap.Config.ARGB_8888));
 
 		/************************ Matcher Dialog *****************************************************/
@@ -491,20 +490,6 @@ public class Recogniser extends Activity {
 
 		/************************ Matcher Ends here *****************************************************/
 
-	}
-
-	public Bitmap convert(Bitmap myBitmap) {
-		int[] pixels = new int[myBitmap.getHeight() * myBitmap.getWidth()];
-		myBitmap.getPixels(pixels, 0, myBitmap.getWidth(), 0, 0,
-				myBitmap.getWidth(), myBitmap.getHeight());
-		for (int i = 0; i < myBitmap.getHeight() * myBitmap.getWidth(); i++) {
-			if (pixels[i] == Color.YELLOW)
-				pixels[i] = Color.RED;
-		}
-
-		myBitmap.setPixels(pixels, 0, myBitmap.getWidth(), 0, 0,
-				myBitmap.getWidth(), myBitmap.getHeight());
-		return myBitmap;
 	}
 
 	public void StrokeMatcher(int type) // Stroke Matcher function
@@ -584,12 +569,6 @@ public class Recogniser extends Activity {
 																// present in
 																// the
 																// InputCharacter
-
-				// Toast.makeText(context,Charactersequences.size()+"",
-				// Toast.LENGTH_SHORT).show();
-				// Toast.makeText(context,Charactersequences.get(0),Toast.LENGTH_SHORT).show();
-				// Toast.makeText(context,Charactersequences.get(1),Toast.LENGTH_SHORT).show();
-
 				if (Charactersequences.size() == 1) {
 					mt.StrokeMatchnonCentroid(Charactersequences.get(0),
 							InputCharacter);

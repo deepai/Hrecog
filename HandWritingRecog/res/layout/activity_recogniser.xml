@@ -48,8 +48,8 @@
 
                 <android.gesture.GestureOverlayView
                     android:id="@+id/gestureOverlayView1"
-                    android:layout_width="1160dp"
-                    android:layout_height="match_parent"
+                    android:layout_width="1280dp"
+                    android:layout_height="fill_parent"
                     android:gestureStrokeAngleThreshold="0"
                     android:gestureStrokeSquarenessThreshold="0"
                     android:gestureStrokeType="multiple" >
@@ -60,55 +60,12 @@
 
                         <handwriting.handwritingrecog.customview
                             android:id="@+id/customview1"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent" />
 
                     </LinearLayout>
 
                 </android.gesture.GestureOverlayView>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="#150517"
-                    android:orientation="vertical" >
-
-                    <Button
-                        android:id="@+id/button_space"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Space"
-                        android:textColor="#ffffff" />
-
-                    <Button
-                        android:id="@+id/Button01"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Combine"
-                        android:textColor="#ffffff" />
-
-                    <Button
-                        android:id="@+id/button_clear"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Clear"
-                        android:textColor="#ffffff" />
-
-                    <Button
-                        android:id="@+id/button1"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="SMS/EMAIL"
-                        android:textColor="#ffffff" />
-
-                    <Button
-                        android:id="@+id/button_help"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Help"
-                        android:textColor="#ffffff" />
-
-                </LinearLayout>
 
         </LinearLayout>
 
