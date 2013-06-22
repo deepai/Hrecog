@@ -1,20 +1,18 @@
 package handwriting.handwritingrecog;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.xml.transform.sax.TemplatesHandler;
+import preprocessing.BoundingBox;
+
+
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.widget.Toast;
+import android.view.inputmethod.CorrectionInfo;
 
-import utils.SaveFile;
-import utils.Strokesloader;
 
-import Centroid.*;
 import Character_Stroke.Character_Stroke;
 
 public class Matcher {
@@ -28,6 +26,10 @@ public class Matcher {
 	ArrayList<float[]> InputCharacter; //Userdrawn Character
 	ArrayList<String> StrokeSequence;
 	Set<String> keys;
+	String[] mappedStrokesSequences;
+	String CharacterID;
+	ArrayList<BoundingBox> StrokesHeight;
+	public int errorcount=0;
 	public Matcher(HashMap<String, ArrayList<Character_Stroke>> characterStrokes,HashMap<String,float[]> strokes,Context ct,HashMap<String,ArrayList<String>> lutback) throws Exception {
 		// TODO Auto-generated constructor stub
 			LUTback=lutback;
@@ -37,8 +39,11 @@ public class Matcher {
 			this.ct=ct;
 			
 	}
-	public void StrokeMatchnonCentroid(String inputSequence,ArrayList<float[]> ip)
+	public void StrokeMatchnonCentroid(String inputSequence,ArrayList<float[]> ip,String[] mappedStrokes,String CharacterID,ArrayList<BoundingBox> StrokeHeight)
 	{
+		this.CharacterID=CharacterID;
+		this.StrokesHeight=StrokeHeight;
+		mappedStrokesSequences=mappedStrokes;
 		InputCharacter=ip;
 		String[] keysInput=inputSequence.split(" ");
 		
@@ -140,6 +145,24 @@ public class Matcher {
 			//params is the Stroke numbers to be mapped
 			String result;
 			String Strokesadded="";
+			
+			if(CharacterID.contains("38"))
+			{
+				if(InputCharacter.size()==2)
+				{
+					if(StrokesHeight.get(0).height<StrokesHeight.get(1).height)
+					{
+						LRUReplace("33",InputCharacter.get(0), Strokes);
+						LRUReplace("16",InputCharacter.get(1), Strokes);
+					}
+					else
+					{
+						LRUReplace("16",InputCharacter.get(0), Strokes);
+						LRUReplace("33",InputCharacter.get(1), Strokes);
+					}
+				}
+			}
+			
 			try{
 			for(int i=0;i<InputCharacter.size();i++)
 			  {
@@ -157,10 +180,19 @@ public class Matcher {
 					 }
 					
 				 }
-				 Strokesadded+=" "+ClassRecognizedMin; //the main class required
-				 //add the Stroke in the Strokes;
-				 LRUReplace(CharLUT.getStrokename(ClassRecognizedMin),InputCharacter.get(i),Strokes);
-				//Strokes.put(CharLUT.getStrokename(ClassRecognizedMin)+"_x",InputCharacter.get(i));				
+				 if(!mappedStrokesSequences[i].equals(ClassRecognizedMin)) //if the mapped Stroke is same donot update it!
+				 {
+					 Strokesadded+=" "+ClassRecognizedMin; //the main class required
+					 //add the Stroke in the Strokes;
+					 synchronized(Strokes)
+					 {
+						 LRUReplace(CharLUT.getStrokename(ClassRecognizedMin),InputCharacter.get(i),Strokes);
+					 }
+					 
+					//Strokes.put(CharLUT.getStrokename(ClassRecognizedMin)+"_x",InputCharacter.get(i));	
+					 errorcount++; //increase the count of an error
+				 }
+				 			
 			  }
 			//SaveFile.WriteFile("/mnt/sdcard/HWREcogfiles/Library.dat",Strokes);
 			result="successfully added "+Strokesadded;

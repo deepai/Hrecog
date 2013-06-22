@@ -4,18 +4,20 @@ import handwriting.handwritingrecog.DTWRecogniser;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import preprocessing.BoundingBox;
 import preprocessing.Scaling;
 import preprocessing.smoothing;
 import Character_Stroke.Character_Stroke;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.telephony.SmsManager;
-import android.text.Html;
-import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -27,10 +29,13 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ExpandableListView;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
@@ -67,9 +72,18 @@ public class Recogniser extends Activity {
 	ImageButton revert;
 	ImageButton backspace;
 	customview img;
+	ExpandableListView expListView;
 	ArrayAdapter<String> charchoiceAdapt;
+	
+	//
+	HashMap<String,String> listChild;
+	List<String> items;
+	//
+	String[] mappedStrokesinput;
 	ArrayList<float[]> InputCharacter; // to hold the UserInput Character after
 										// preprocessing
+	ArrayList<BoundingBox> InputCharacterHeight;
+	
 	ArrayList<unicodeMapping> Unicodemapper = new ArrayList<unicodeMapping>();
 	Matcher mt;
 	String correctedChar;
@@ -81,6 +95,8 @@ public class Recogniser extends Activity {
 	ExecutorService executor = Executors.newFixedThreadPool(2);
 	Path gestureshape;
 	SharedPreferences settings;
+	String CharacterID;
+	
     
 
 
@@ -93,7 +109,9 @@ public class Recogniser extends Activity {
 		{
 			SharedPreferences.Editor editor = settings.edit();
 	      	editor.putString("previous",TextArea.getText().toString());
+	      	editor.putLong("Timeoutvalue",mv.getFadeOffset());
 	      	editor.commit();
+	      	
 		}
 			
 
@@ -124,6 +142,30 @@ public class Recogniser extends Activity {
 		return super.onCreateOptionsMenu(menu);
 	}
 	
+	//initialise
+	public void populate()
+	{
+		items=new ArrayList<String>();
+		listChild=new HashMap<String, String>();
+		
+		items.add("Readme");
+		items.add("Correction");
+		items.add("Space");
+		items.add("Backspace");
+		items.add("SMS/Email");
+		items.add("Combine");
+		
+		listChild.put(items.get(0),getResources().getString(R.string.README));
+		listChild.put(items.get(1),getResources().getString(R.string.Correction));
+		listChild.put(items.get(2),getResources().getString(R.string.Space_Button));
+		listChild.put(items.get(3),getResources().getString(R.string.backSpace_Button));
+		listChild.put(items.get(4),getResources().getString(R.string.email));
+		listChild.put(items.get(5),getResources().getString(R.string.combine));
+		
+		//listImages.put(items.get(1),BitmapFactory.decodeResource(context.getResources(), R.drawable.));
+		
+	}
+	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// TODO Auto-generated method stub
@@ -152,22 +194,13 @@ public class Recogniser extends Activity {
 		        case R.id.item_help :
 		        {
 		        	final Dialog Helpdialog = new Dialog(context);
-					Helpdialog.setTitle("Readme");
-					Helpdialog.setContentView(R.layout.dialogcorrection);
-					TextView et = (TextView) Helpdialog
-							.findViewById(R.id.textView_help);
-					et.setMovementMethod(ScrollingMovementMethod.getInstance());
-					et.setText(Html.fromHtml(getResources().getString(
-							R.string.README)));
-					Button bt = (Button) Helpdialog.findViewById(R.id.button_ok);
-					bt.setOnClickListener(new OnClickListener() {
-
-						@Override
-						public void onClick(View arg0) {
-							// TODO Auto-generated method stub
-							Helpdialog.dismiss();
-						}
-					});
+					Helpdialog.setTitle("Help!Click to expand");
+					
+					Helpdialog.setContentView(R.layout.expandlayout);
+					expListView=(ExpandableListView) Helpdialog.findViewById(R.id.expandableListView_help);
+					help_list exadapter=new help_list(this,listChild,items);
+					expListView.setAdapter(exadapter);
+					exadapter.notifyDataSetChanged();
 					Helpdialog.show();
 					break;		        	
 		        }
@@ -268,6 +301,73 @@ public class Recogniser extends Activity {
 		        	TextArea.append(" ");
 		        	break;
 		        }
+		        case R.id.item1 :
+		        {
+		        	mt.errorcount=0;
+		        	Toast.makeText(context, "Error Count has been refreshed", Toast.LENGTH_SHORT).show();
+		        	break;
+		        }
+		        case R.id.item_show :
+		        {
+		        	Toast.makeText(context,"The error count is: "+mt.errorcount, Toast.LENGTH_SHORT).show();
+		        }
+		        case R.id.item_selectTime :
+		        {
+		        	final long setvalue=mv.getFadeOffset();
+		        	final Dialog SelectTimeout = new Dialog(context);
+					SelectTimeout.setTitle("Set fadeoffset Interval(milliseconds)");
+					
+					SelectTimeout.setContentView(R.layout.select_timeout);
+					final TextView scoreupdate=(TextView) SelectTimeout.findViewById(R.id.textView_setvalues);
+					scoreupdate.setText(mv.getFadeOffset()+"/2000");
+					final SeekBar seeker=(SeekBar) SelectTimeout.findViewById(R.id.seekBar1);
+					seeker.setMax(2000);
+					seeker.setProgress((int) mv.getFadeOffset());
+					seeker.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+						
+						@Override
+						public void onStopTrackingTouch(SeekBar seekBar) {
+							// TODO Auto-generated method stub
+							
+						}
+						
+						@Override
+						public void onStartTrackingTouch(SeekBar seekBar) {
+							// TODO Auto-generated method stub
+							
+						}
+						
+						@Override
+						public void onProgressChanged(SeekBar seekBar, int progress,boolean fromUser) {
+							// TODO Auto-generated method stub
+							scoreupdate.setText(progress+"/2000");
+							
+						}
+					});
+					Button select_ok=(Button) SelectTimeout.findViewById(R.id.button_dialogok);
+					select_ok.setOnClickListener(new OnClickListener() {
+						
+						@Override
+						public void onClick(View arg0) {
+							// TODO Auto-generated method stub
+							mv.setFadeOffset(seeker.getProgress());
+							SelectTimeout.dismiss();
+						}
+					});
+					Button select_cancel=(Button) SelectTimeout.findViewById(R.id.button_dialogCancel);
+					select_cancel.setOnClickListener(new OnClickListener() {
+						
+						@Override
+						public void onClick(View v) {
+							// TODO Auto-generated method stub
+							SelectTimeout.dismiss();
+						}
+					});
+					SelectTimeout.setCancelable(false);
+					SelectTimeout.show();
+					
+					break;		
+		        }
 		       
 		       
 		   
@@ -281,11 +381,12 @@ public class Recogniser extends Activity {
 		
 		settings=getSharedPreferences(PREFS_NAME,0);
 		String valueprev=settings.getString("previous","");
+		long timeoutvalue=settings.getLong("Timeoutvalue",420);
 		
 		try {
 			/***************************** LOAD THE LIBRARY FILES *****************************************************/
 
-
+			populate();
 			Intent intent = getIntent();
 			/*
 			 * Load the library If library file doesn't exist,copy the contents
@@ -306,6 +407,8 @@ public class Recogniser extends Activity {
 					Strokes=Strokesbackup;
 				}
 			}
+			
+			
 			/*
 			 * LutMatcher = ForwardLUT uniVals = CharacterMap for storage
 			 * unicodeGrid= for displaying the unicode values in the grid
@@ -358,6 +461,7 @@ public class Recogniser extends Activity {
 		/*********************************************************************************************************/
 
 		mv.setGestureStrokeWidth(5);
+		mv.setFadeOffset(timeoutvalue);
 		for (String s : unicodeGrid.keySet()) // store all the unicode into
 												// charchoices array
 		{
@@ -421,17 +525,20 @@ public class Recogniser extends Activity {
 															// arraylist to
 															// temporary hold
 															// the float arrays
+						InputCharacterHeight=new ArrayList<BoundingBox>(UserDrawnStroke.size());
 						for (int i = 0; i < gesture.getStrokesCount(); i++) {
 							float[] temp = gesture.getStrokes().get(i).points; // float
 																				// points
 																				// of
 																				// the
 																				// gesture
-							temp = Scaling.scale(temp); // Apply Scaling
+							InputCharacterHeight.add(new BoundingBox());
+							temp = Scaling.scale(temp,InputCharacterHeight.get(i)); // Apply Scaling
 							temp = smoothing.smoothFunction(temp); // apply
 																	// Smoothing
 							UserDrawnStroke.add(temp);
 						}
+						
 						InputCharacter = UserDrawnStroke;// store globally;
 						runOnUiThread(new Runnable() {
 
@@ -508,6 +615,7 @@ public class Recogniser extends Activity {
 				// TODO Auto-generated method stub
 				TextView t = (TextView) arg1.findViewById(R.id.text1);
 				String charactername = (String) t.getTag(); // get the tag name
+				CharacterID=charactername;
 				correctedChar = t.getText().toString();
 
 				if (valtype == 1) {
@@ -546,9 +654,12 @@ public class Recogniser extends Activity {
 							@Override
 							public void run() {
 								// TODO Auto-generated method stub
-								LRUReplace(InputCharName,
-										InputCharacter.get(0), Strokes);
+								synchronized(Strokes)
+								{
+									LRUReplace(InputCharName,InputCharacter.get(0), Strokes);
+								}								
 								// SaveFile.WriteFile("/mnt/sdcard/HWREcogfiles/Library.dat",Strokes);
+								mt.errorcount++; //increase the count
 							}
 						});
 
@@ -570,8 +681,7 @@ public class Recogniser extends Activity {
 																// the
 																// InputCharacter
 				if (Charactersequences.size() == 1) {
-					mt.StrokeMatchnonCentroid(Charactersequences.get(0),
-							InputCharacter);
+					mt.StrokeMatchnonCentroid(Charactersequences.get(0),InputCharacter,mappedStrokesinput,CharacterID,InputCharacterHeight);
 					Toast.makeText(context, "Success", Toast.LENGTH_SHORT)
 							.show();
 					dialog.dismiss();
@@ -607,14 +717,13 @@ public class Recogniser extends Activity {
 									View arga1, int arga2, long arga3) {
 								// TODO Auto-generated method stub
 								ImageView v = (ImageView) arga1
-										.findViewById(R.id.imageView1);
+										.findViewById(R.id.imageView_group);
 								String seq = (String) v.getTag(); // obtain the
 																	// final
 																	// sequence
 
-								mt.StrokeMatchnonCentroid(seq, InputCharacter);
-								Toast.makeText(context, "Success",
-										Toast.LENGTH_SHORT).show();
+								mt.StrokeMatchnonCentroid(seq, InputCharacter,mappedStrokesinput,CharacterID,InputCharacterHeight);
+								Toast.makeText(context, "Success",Toast.LENGTH_SHORT).show();
 								multiselect.dismiss();
 
 							}
@@ -695,26 +804,30 @@ public class Recogniser extends Activity {
 			String[] RecognizedStrokes = new String[params[0].size()];
 			// Set<String> libraryClassesKeys=Strokes.keySet(); //obtain the
 			// keys
+			synchronized(Strokes)
+			{
+				for (int i = 0; i < params[0].size(); i++) {
+					double minValue = Double.MAX_VALUE;
+					String ClassRecognizedMin = null;
+					Iterator<String> key = Strokes.keySet().iterator();
+					while (key.hasNext()) {
+						String tempClass = key.next();
+						double score = DTWRecogniser.DTWDistance(params[0].get(i),
+								Strokes.get(tempClass));
+						if (minValue > score) {
+							minValue = score; // set as minimum score
+							ClassRecognizedMin = tempClass; // set as minimum Score
+															// corresponding class
+						}
 
-			for (int i = 0; i < params[0].size(); i++) {
-				double minValue = Double.MAX_VALUE;
-				String ClassRecognizedMin = null;
-				Iterator<String> key = Strokes.keySet().iterator();
-				while (key.hasNext()) {
-					String tempClass = key.next();
-					double score = DTWRecogniser.DTWDistance(params[0].get(i),
-							Strokes.get(tempClass));
-					if (minValue > score) {
-						minValue = score; // set as minimum score
-						ClassRecognizedMin = tempClass; // set as minimum Score
-														// corresponding class
 					}
+					RecognizedStrokes[i] = ClassRecognizedMin;
 
 				}
-				RecognizedStrokes[i] = ClassRecognizedMin;
-
 			}
-			finalCharacterClass = LutMatcher.getValue(RecognizedStrokes);
+			
+			mappedStrokesinput=RecognizedStrokes;
+			finalCharacterClass = LutMatcher.getValue(RecognizedStrokes); //obtain character class from combination of strokes
 
 			// finalCharacterClass=RecognizedStrokes.toString();
 			return finalCharacterClass;

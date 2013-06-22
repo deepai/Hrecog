@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import Centroid.StrokeCentroid;
 import Character_Stroke.Character_Stroke;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -38,7 +37,6 @@ public class splashScreen extends Activity {
 	HashMap<String,float[]> Strokes;
 	HashMap<String,ArrayList<String>> backwardLUT;
 	HashMap<String,String> forwardLUT;
-	HashMap<String,ArrayList<StrokeCentroid>> LUTCentroids;
 	HashMap<String,ArrayList<Character_Stroke>> LUTCharStrokes;
 	Bundle bt=new Bundle();
 	Context context=this;
@@ -48,52 +46,108 @@ public class splashScreen extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_splash);
 		mprogress=(ProgressBar) findViewById(R.id.progressBar1);
-		mprogress.setMax(5);
+		mprogress.setMax(4);
 		mprogress.setProgress(0);
-		text=(TextView) findViewById(R.id.textView1);
+		text=(TextView) findViewById(R.id.textView_grp);
 		Terms=(TextView) findViewById(R.id.textView_terms);
 		Contact=(TextView) findViewById(R.id.textView_contacts);
 		assets=getAssets();
 		b=(Button) findViewById(R.id.Button_accept);
+		ctb=(CheckBox) findViewById(R.id.checkBox1);
+		ctb.setEnabled(false);
 		
-		try {
-			inp=new ObjectInputStream(assets.open("Library.dat"));
-			Strokes=(HashMap<String, float[]>) inp.readObject();
-			inp.close();
-			mprogress.setProgress(1);
-			text.setText("Loaded Library.dat");
-			//Thread.sleep(1000);
+		Thread splash=new Thread(new Runnable() {
 			
-			inp=new ObjectInputStream(assets.open("LUTback.dat"));
-			backwardLUT=(HashMap<String, ArrayList<String>>) inp.readObject();
-			inp.close();
-			mprogress.setProgress(2);
-			text.setText("Loaded backwardLUT.dat");
-			//Thread.sleep(1000);
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				try {
+					inp=new ObjectInputStream(assets.open("Library.dat"));
+					Strokes=(HashMap<String, float[]>) inp.readObject();
+					inp.close();
+					Thread.sleep(1000);
+					mprogress.post(new Runnable() {
+						
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							mprogress.setProgress(1);
+							text.setText("Loading Libraries - Library.dat");
+						}
+					});
+					
+					//Thread.sleep(1000);
+					
+					inp=new ObjectInputStream(assets.open("LUTback.dat"));
+					backwardLUT=(HashMap<String, ArrayList<String>>) inp.readObject();
+					inp.close();
+					Thread.sleep(1000);
+					mprogress.post(new Runnable() {
+						
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							mprogress.setProgress(2);
+							text.setText("Loading Libraries - LUTbackdat");
+						}
+					});
+					//Thread.sleep(1000);
+					
+					//Thread.sleep(1000);
+					
+					inp=new ObjectInputStream(assets.open("LUTCharStrokes.dat"));
+					LUTCharStrokes=(HashMap<String, ArrayList<Character_Stroke>>) inp.readObject();
+					inp.close();
+					Thread.sleep(1000);
+					mprogress.post(new Runnable() {
+						
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							mprogress.setProgress(3);
+							text.setText("Loading Libraries - CharStrokes.dat");
+						}
+					});
+										//Thread.sleep(1000);
+					
+					inp=new ObjectInputStream(assets.open("LutLex.dat"));
+					forwardLUT=(HashMap<String, String>) inp.readObject();
+					inp.close();	
+					
+					Thread.sleep(1000);
+					mprogress.post(new Runnable() {
+						
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							mprogress.setProgress(4);
+							text.setText("Loading Libraries - LuTlex.dat");
+							ctb.setEnabled(true);
+							
+						} 
+					});
+					Thread.sleep(2000);
+					text.post(new Runnable() {
+						
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							text.setText("libraries loaded");
+						}
+					});
+					
+					//Thread.sleep(1000);
+					
+				} catch (Exception e)
+				{
+					Toast.makeText(getApplicationContext(), e.toString()+"", Toast.LENGTH_SHORT).show();
+					text.setText("Error in loading the libraries");
+				}
+				
+			}
 			
-			//Thread.sleep(1000);
-			
-			inp=new ObjectInputStream(assets.open("LUTCharStrokes.dat"));
-			LUTCharStrokes=(HashMap<String, ArrayList<Character_Stroke>>) inp.readObject();
-			inp.close();
-			mprogress.setProgress(4);
-			text.setText("Loaded CharStrokes.dat");
-			//Thread.sleep(1000);
-			
-			inp=new ObjectInputStream(assets.open("LutLex.dat"));
-			forwardLUT=(HashMap<String, String>) inp.readObject();
-			inp.close();	
-			mprogress.setProgress(5);
-			text.setText("Loaded forwardLUT.dat");
-			//Thread.sleep(1000);
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			Toast.makeText(getApplicationContext(),e.toString(),Toast.LENGTH_SHORT).show();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			Toast.makeText(getApplicationContext(),e.toString(),Toast.LENGTH_SHORT).show();
-		}
+		});
+		splash.start();
 		
 		Terms.setOnClickListener(new OnClickListener() {
 			
@@ -132,7 +186,6 @@ public class splashScreen extends Activity {
 				Helpdialog.show();
 			}
 		});
-		ctb=(CheckBox) findViewById(R.id.checkBox1);
 		ctb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			
 			@Override

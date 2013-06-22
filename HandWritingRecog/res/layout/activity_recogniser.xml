@@ -24,8 +24,11 @@
                 android:layout_weight="0.56"
                 android:background="#ffffff"
                 android:ems="10"
+                android:hint="TextArea"
                 android:inputType="textMultiLine"
-                android:singleLine="true" />
+                android:singleLine="true"
+                android:textColor="#15317E"
+                android:textSize="27dp" />
 
             <ImageButton
                 android:id="@+id/imageButton_backspace"
@@ -52,7 +55,8 @@
                     android:layout_height="fill_parent"
                     android:gestureStrokeAngleThreshold="0"
                     android:gestureStrokeSquarenessThreshold="0"
-                    android:gestureStrokeType="multiple" >
+                    android:gestureStrokeType="multiple" 
+                    android:gestureColor="#15317E">
 
                     <LinearLayout
                         android:layout_width="match_parent"

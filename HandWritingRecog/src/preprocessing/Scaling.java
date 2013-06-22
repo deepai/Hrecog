@@ -8,7 +8,7 @@ public class Scaling {
 	
 	
 
-	public static float[] scale(float[] _drawn) //scaling function to scale_down the bounding box of the shape
+	public static float[] scale(float[] _drawn,BoundingBox StrokeHeight) //scaling function to scale_down the bounding box of the shape
 	{
 		float[] pathscale;
 		double scale=0;
@@ -46,6 +46,7 @@ public class Scaling {
 		  
 			width = max_x - min_x;
 			height = max_y - min_y; 
+			StrokeHeight.height=height;
 			//System.out.println("width="+width+","+"height="+height);
 			
 			if(width<=sWth&& width >=0.5*sWth&&height<=sHth&&height >=0.5*sHth) //then do only translation

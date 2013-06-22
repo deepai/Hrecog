@@ -7,4 +7,7 @@
     <item android:id="@+id/item_clear" android:title="Clear" android:showAsAction="ifRoom|withText" android:icon="@drawable/clear"></item>
     <item android:id="@+id/item_send" android:title="Send" android:showAsAction="ifRoom|withText" android:icon="@drawable/email"></item>
     <item android:id="@+id/item_help" android:title="Help" android:showAsAction="ifRoom|withText" android:icon="@drawable/help"></item>
+    <item android:id="@+id/item1" android:title="Refresh"></item>
+    <item android:id="@+id/item_show" android:title="Show Count"></item>
+    <item android:id="@+id/item_selectTime" android:title="Set Timeout"></item>
 </menu>

@@ -30,11 +30,4 @@
 		<nature>com.android.ide.eclipse.adt.AndroidNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>assets/content_merge.png</name>
-			<type>1</type>
-			<location>/home/deepai/Desktop/pics/Android_Design_Icons_20120711/All_Icons/holo_light/xhdpi/5_content_merge.png</location>
-		</link>
-	</linkedResources>
 </projectDescription>

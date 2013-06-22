@@ -42,7 +42,7 @@ public class customadaptermulti extends ArrayAdapter<String> {
 		    LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		    convertView = inflater.inflate(R.layout.editcharacter, parent, false);
 		}
-		ImageView img=(ImageView) convertView.findViewById(R.id.imageView1);
+		ImageView img=(ImageView) convertView.findViewById(R.id.imageView_group);
 		
 		
 		Bitmap bp=Bitmap.createScaledBitmap(getImage(characterStrokes.get(obj.get(i))), 200,200, true);

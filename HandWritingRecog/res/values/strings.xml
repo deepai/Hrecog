@@ -9,8 +9,6 @@
 	<string name="README">
 	    
 <![CDATA[
-<b><font color=\'"#ffff0000"\'>HOW TO USE</font></b><br>
-<br>
 
 <i>This is an application of Bangla (2nd most popular Indic script) Handwriting Recognition. Its maiden (beta) version is 
 uploaded for its distribution among Android (tested for Honeycomb only) Tab users. This application may be conveniently 
@@ -29,38 +27,25 @@ Before you start to use this application, please read the following instructions
 </ul>
 <br><br>
 
-<b>Correction</b>
-<br><br>
-<i>
+]]>
+</string>
+
+<string name="Correction">
 If the app fails to recognise the input character correctly, the user should press the "Correct" button to select 
 the corresponding correct character. On pressing the correct button, a table of possible characters appears from
 which the user should select the correct character.
 The vowel modifiers are associated with the character ক  so as to display them(vowel modifiers unicode need to be combined with other values to be displayed).
-</i>
-<br><br>
 If however the character is not recognised as any valid character the program will automatically display the correction dialog for the user.
-
-<br><br>
-<b>Space button</b><br>
-For giving spaces in the text area
-<br><br>
-
-<b>Backspace button</b><br>
-for giving backspaces in the text area<br><br>
-
-<b>SMS/EMAIL</b><br>
-This button is used to forward the text as either sms or email<br><br>
-
-<b>Combine</b><br>
-
-The present Beta version does not allow the writer to input a compound Bangla character (ক্ত) directly. Instead the writer
+</string>
+<string name="Space_Button">For giving spaces in the text area</string>
+<string name="backSpace_Button">for giving backspaces in the text area</string>
+<string name="email">This button is used to forward the text as either sms or email</string>
+<string name="combine">The present Beta version does not allow the writer to input a compound Bangla character (ক্ত) directly. Instead the writer
 should write the two concerned characters consecutively (such as কত for the above example ক্ত) and then press the combine 
 button to combine the two letters forming the shape of the concerned compound character(JUKTAKHOR).
 Depending on the unicode support of the OS, sometimes rendering problem might occur failing to display the compound 
-character properly. However, the receipient of the message will see it correctly.
-<br>
-]]>
-</string>
+character properly. However, the receipient of the message will see it correctly.</string>
+
 <string name="termsandcondtions">
 All rights are reserved.
 
