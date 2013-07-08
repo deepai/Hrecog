@@ -1,0 +1,12 @@
+# view res/layout/activity_recogniser.xml #generated:52
+-keep class android.gesture.GestureOverlayView { <init>(...); }
+
+# view AndroidManifest.xml #generated:22
+-keep class handwriting.handwritingrecog.Recogniser { <init>(...); }
+
+# view res/layout/activity_recogniser.xml #generated:65
+-keep class handwriting.handwritingrecog.customview { <init>(...); }
+
+# view AndroidManifest.xml #generated:15
+-keep class handwriting.handwritingrecog.splashScreen { <init>(...); }
+

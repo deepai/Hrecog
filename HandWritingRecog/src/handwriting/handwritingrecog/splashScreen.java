@@ -1,6 +1,5 @@
 package handwriting.handwritingrecog;
 
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,20 +24,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class splashScreen extends Activity {
-	
 	AssetManager assets;
 	ProgressBar mprogress;
 	TextView text;
 	ObjectInputStream inp;
-	Button b;
 	TextView Terms;
 	TextView Contact;
-	CheckBox ctb;
 	HashMap<String,float[]> Strokes;
 	HashMap<String,ArrayList<String>> backwardLUT;
 	HashMap<String,String> forwardLUT;
 	HashMap<String,ArrayList<Character_Stroke>> LUTCharStrokes;
 	Bundle bt=new Bundle();
+	Button Continue;
 	Context context=this;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -52,9 +49,8 @@ public class splashScreen extends Activity {
 		Terms=(TextView) findViewById(R.id.textView_terms);
 		Contact=(TextView) findViewById(R.id.textView_contacts);
 		assets=getAssets();
-		b=(Button) findViewById(R.id.Button_accept);
-		ctb=(CheckBox) findViewById(R.id.checkBox1);
-		ctb.setEnabled(false);
+		Continue=(Button) findViewById(R.id.button_continue);
+		Continue.setEnabled(false);
 		
 		Thread splash=new Thread(new Runnable() {
 			
@@ -65,7 +61,7 @@ public class splashScreen extends Activity {
 					inp=new ObjectInputStream(assets.open("Library.dat"));
 					Strokes=(HashMap<String, float[]>) inp.readObject();
 					inp.close();
-					Thread.sleep(1000);
+					// Thread.sleep(1000);
 					mprogress.post(new Runnable() {
 						
 						@Override
@@ -76,12 +72,12 @@ public class splashScreen extends Activity {
 						}
 					});
 					
-					//Thread.sleep(1000);
+					//// Thread.sleep(1000);
 					
 					inp=new ObjectInputStream(assets.open("LUTback.dat"));
 					backwardLUT=(HashMap<String, ArrayList<String>>) inp.readObject();
 					inp.close();
-					Thread.sleep(1000);
+					// Thread.sleep(1000);
 					mprogress.post(new Runnable() {
 						
 						@Override
@@ -91,14 +87,16 @@ public class splashScreen extends Activity {
 							text.setText("Loading Libraries - LUTbackdat");
 						}
 					});
-					//Thread.sleep(1000);
+					//// Thread.sleep(1000);
 					
-					//Thread.sleep(1000);
+					//// Thread.sleep(1000);
 					
 					inp=new ObjectInputStream(assets.open("LUTCharStrokes.dat"));
 					LUTCharStrokes=(HashMap<String, ArrayList<Character_Stroke>>) inp.readObject();
+					//System.out.println(LUTCharStrokes);
+					//for(String s:Lut)
 					inp.close();
-					Thread.sleep(1000);
+					// Thread.sleep(1000);
 					mprogress.post(new Runnable() {
 						
 						@Override
@@ -108,13 +106,13 @@ public class splashScreen extends Activity {
 							text.setText("Loading Libraries - CharStrokes.dat");
 						}
 					});
-										//Thread.sleep(1000);
+										//// Thread.sleep(1000);
 					
 					inp=new ObjectInputStream(assets.open("LutLex.dat"));
 					forwardLUT=(HashMap<String, String>) inp.readObject();
 					inp.close();	
 					
-					Thread.sleep(1000);
+					// Thread.sleep(1000);
 					mprogress.post(new Runnable() {
 						
 						@Override
@@ -122,11 +120,11 @@ public class splashScreen extends Activity {
 							// TODO Auto-generated method stub
 							mprogress.setProgress(4);
 							text.setText("Loading Libraries - LuTlex.dat");
-							ctb.setEnabled(true);
+							//ctb.setEnabled(true);
 							
 						} 
 					});
-					Thread.sleep(2000);
+					// Thread.sleep(2000);
 					text.post(new Runnable() {
 						
 						@Override
@@ -135,13 +133,23 @@ public class splashScreen extends Activity {
 							text.setText("libraries loaded");
 						}
 					});
+					Continue.post(new Runnable() {
+						
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							Continue.setEnabled(true);
+						}
+					});
 					
-					//Thread.sleep(1000);
+					//// Thread.sleep(1000);
+					
 					
 				} catch (Exception e)
 				{
 					Toast.makeText(getApplicationContext(), e.toString()+"", Toast.LENGTH_SHORT).show();
 					text.setText("Error in loading the libraries");
+					
 				}
 				
 			}
@@ -149,6 +157,19 @@ public class splashScreen extends Activity {
 		});
 		splash.start();
 		
+		Continue.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				Intent i = new Intent(getApplicationContext(), Recogniser.class);
+				i.putExtra("LIBRARY",Strokes); //library of strokes
+				i.putExtra("LUTforward",forwardLUT); //forwardLUT
+				i.putExtra("LUTbackward",backwardLUT); //Backward Lut
+				i.putExtra("LUTCharStrokes",LUTCharStrokes); //CharStrokes
+				startActivity(i);
+			}
+		});
 		Terms.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -186,40 +207,7 @@ public class splashScreen extends Activity {
 				Helpdialog.show();
 			}
 		});
-		ctb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			
-			@Override
-			public void onCheckedChanged(CompoundButton arg0, boolean arg1) {
-				// TODO Auto-generated method stub
-				if(arg1)
-				{
-					b.setEnabled(true);
-					b.setText("Start");
-				}
-				else
-				{
-					b.setEnabled(false);
-					b.setText("Accept to start");
-				}
-			}
-		});
 		
-		b.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View arg0) {
-				// TODO Auto-generated method stub
-				//bt.putParcelable("Library", Strokes);
-				Intent i = new Intent(getApplicationContext(), Recogniser.class);
-				i.putExtra("LIBRARY",Strokes); //library of strokes
-				i.putExtra("LUTforward",forwardLUT); //forwardLUT
-				i.putExtra("LUTbackward",backwardLUT); //Backward Lut
-				i.putExtra("LUTCharStrokes",LUTCharStrokes); //CharStrokes
-				startActivity(i);
-			}
-		});
-		b.setEnabled(false);
-		b.setText("Accept to start");
 		
 		
 	}

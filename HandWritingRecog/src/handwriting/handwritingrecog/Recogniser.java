@@ -58,6 +58,7 @@ public class Recogniser extends Activity {
 	/********************************************* Fields **************************************/
 	private static final String PREFS_NAME = "HandwritingRecogData";
 	HashMap<String, float[]> Strokes,Strokesbackup;
+	HashMap<String,float[]> SynchronizedStroke;
 	HashMap<String, ArrayList<String>> LUTback;
 	HashMap<String, String> uniVals;
 	HashMap<String, String> unicodeGrid;
@@ -104,7 +105,10 @@ public class Recogniser extends Activity {
 	protected void onStop() {
 		// TODO Auto-generated method stub
 		super.onStop();
-		utils.SaveFile.WriteFile("/mnt/sdcard/HWREcogfiles/Library.dat",Strokes);
+		Strokes=SynchronizedStroke;
+			utils.SaveFile.WriteFile("/mnt/sdcard/HWREcogfiles/Library.dat",Strokes);
+
+		
 		if(TextArea.getText().length()>0)
 		{
 			SharedPreferences.Editor editor = settings.edit();
@@ -125,7 +129,9 @@ public class Recogniser extends Activity {
 		} else {
 			// load strokes
 			try {
-				Strokes = utils.Strokesloader.loadStrokes("/mnt/sdcard/HWREcogfiles/Library.dat");
+					Strokes = utils.Strokesloader.loadStrokes("/mnt/sdcard/HWREcogfiles/Library.dat");
+					SynchronizedStroke=(HashMap<String, float[]>) Collections.synchronizedMap(Strokes);
+				
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -208,8 +214,7 @@ public class Recogniser extends Activity {
 		        {
 		        	AlertDialog.Builder builder = new AlertDialog.Builder(context);
 					builder.setMessage("SMS or EMAIL?").setTitle("CHOOSE WINDOW");
-					builder.setPositiveButton("SMS",
-							new DialogInterface.OnClickListener() {
+					builder.setPositiveButton("SMS",new DialogInterface.OnClickListener() {
 								public void onClick(DialogInterface dialog, int id) {
 									// User clicked OK button
 									/*
@@ -219,47 +224,26 @@ public class Recogniser extends Activity {
 									final Dialog SMSdialog = new Dialog(context);
 									SMSdialog.setTitle("SEND SMS ");
 									SMSdialog.setContentView(R.layout.dialog_sms);
-									final EditText SMScontent = (EditText) SMSdialog
-											.findViewById(R.id.SMScontent);
-									SMScontent.setText(TextArea.getText()
-											.toString());// setting the text here
-									final EditText SMSNumberfield = (EditText) SMSdialog
-											.findViewById(R.id.phnNumber);
-									final Button smsButton = (Button) SMSdialog
-											.findViewById(R.id.button_sms);
-									smsButton
-											.setOnClickListener(new OnClickListener() {
+									final EditText SMScontent = (EditText) SMSdialog.findViewById(R.id.SMScontent);
+									SMScontent.setText(TextArea.getText().toString());// setting the text here
+									final EditText SMSNumberfield = (EditText) SMSdialog.findViewById(R.id.phnNumber);
+									final Button smsButton = (Button) SMSdialog	.findViewById(R.id.button_sms);
+									smsButton.setOnClickListener(new OnClickListener() {
 
 												@Override
 												public void onClick(View arg0) {
 													// TODO Auto-generated method
 													// stub
-													String message = SMScontent
-															.getText().toString();
+													String message = SMScontent.getText().toString();
 													message = unicodeVowelMod(message);
-													String PhoneNumber = SMSNumberfield
-															.getText().toString();
+													String PhoneNumber = SMSNumberfield.getText().toString();
 
 													if ((PhoneNumber.equals("") || PhoneNumber == null)) {
-														Toast.makeText(
-																getApplicationContext(),
-																"No Phone Number Given",
-																Toast.LENGTH_SHORT)
-																.show();
+														Toast.makeText(getApplicationContext(),"No Phone Number Given",Toast.LENGTH_SHORT).show();
 													} else {
-														SmsManager smsManager = SmsManager
-																.getDefault();
-														smsManager
-																.sendTextMessage(
-																		PhoneNumber,
-																		null,
-																		message,
-																		null, null);
-														Toast.makeText(
-																getApplicationContext(),
-																"sent successfully",
-																Toast.LENGTH_SHORT)
-																.show();
+														SmsManager smsManager = SmsManager.getDefault();
+														smsManager.sendTextMessage(PhoneNumber,null,message,null, null);
+														Toast.makeText(getApplicationContext(),"sent successfully",Toast.LENGTH_SHORT).show();
 														SMSdialog.dismiss();
 													}
 												}
@@ -267,27 +251,21 @@ public class Recogniser extends Activity {
 									SMSdialog.show();
 								}
 							});
-					builder.setNegativeButton("EMAIL",
-							new DialogInterface.OnClickListener() {
+					builder.setNegativeButton("EMAIL",new DialogInterface.OnClickListener() {
 								public void onClick(DialogInterface dialog, int id) {
 
 									/*
 									 * this part for email
 									 */
 									// TODO Auto-generated method stub
-									Intent email = new Intent(
-											android.content.Intent.ACTION_SEND);
+									Intent email = new Intent(android.content.Intent.ACTION_SEND);
 
 									/* Fill it with Data */
 									email.setType("plain/text");
-									email.putExtra(
-											android.content.Intent.EXTRA_TEXT,
-											unicodeVowelMod(TextArea.getText()
-													.toString()));
+									email.putExtra(android.content.Intent.EXTRA_TEXT,unicodeVowelMod(TextArea.getText().toString()));
 
 									/* Send it off to the Activity-Chooser */
-									startActivity(Intent.createChooser(email,
-											"Send mail..."));
+									startActivity(Intent.createChooser(email,"Send mail..."));
 								}
 							});
 
@@ -310,6 +288,7 @@ public class Recogniser extends Activity {
 		        case R.id.item_show :
 		        {
 		        	Toast.makeText(context,"The error count is: "+mt.errorcount, Toast.LENGTH_SHORT).show();
+		        	break;
 		        }
 		        case R.id.item_selectTime :
 		        {
@@ -423,6 +402,7 @@ public class Recogniser extends Activity {
 														// for unicode gridview
 			characterStrokes = (HashMap<String, ArrayList<Character_Stroke>>) intent.getSerializableExtra("LUTCharStrokes");
 			LUTback = (HashMap<String, ArrayList<String>>) intent.getSerializableExtra("LUTbackward");
+			SynchronizedStroke=(HashMap<String, float[]>) Collections.synchronizedMap(Strokes);
 
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
@@ -430,7 +410,7 @@ public class Recogniser extends Activity {
 		}
 		/*********************************************************************************************************/
 		try {
-			mt = new Matcher(characterStrokes, Strokes, this, LUTback);
+			mt = new Matcher(characterStrokes,SynchronizedStroke, this, LUTback);
 			// Toast.makeText(context, "Success loading library files",
 			// Toast.LENGTH_SHORT).show();
 		} catch (Exception e1) {
@@ -646,26 +626,44 @@ public class Recogniser extends Activity {
 				 */
 				if (InputCharacter.size() == 1) // handle single Stroke
 				{
-					final String InputCharName = mt
-							.getSingleStrokeName(charactername);
+					final String InputCharName = mt	.getSingleStrokeName(charactername);
 					if (InputCharName != null) {
 						executor.execute(new Runnable() {
 
 							@Override
 							public void run() {
 								// TODO Auto-generated method stub
-								synchronized(Strokes)
-								{
-									LRUReplace(InputCharName,InputCharacter.get(0), Strokes);
-								}								
-								// SaveFile.WriteFile("/mnt/sdcard/HWREcogfiles/Library.dat",Strokes);
-								mt.errorcount++; //increase the count
+								
+									double minimum_score=Double.MAX_VALUE;
+									String minStroke="";
+									
+									Iterator<String> itr=SynchronizedStroke.keySet().iterator();
+									while(itr.hasNext())
+									{
+										String s=itr.next();
+										if(InputCharName.equals(LutMatcher.getStrokename(s)))
+										{
+											double score=DTWRecogniser.DTWDistance(SynchronizedStroke.get(s),InputCharacter.get(0));
+											if(score<minimum_score)
+											{
+												score=minimum_score;
+												minStroke=s;
+											}
+										}
+									}
+									
+									
+										mt.LRUReplace(InputCharName,InputCharacter.get(0), SynchronizedStroke,minStroke);
+																
+									// SaveFile.WriteFile("/mnt/sdcard/HWREcogfiles/Library.dat",Strokes);
+									mt.errorcount++; //increase the count
+								
+								
 							}
 						});
 
 						Toast.makeText(context,
-								"Successfully saved the stroke",
-								Toast.LENGTH_SHORT).show();
+								"Successfully saved the stroke",Toast.LENGTH_SHORT).show();
 						dialog.dismiss();//
 					} else {
 						//Toast.makeText(context, "Found Null",Toast.LENGTH_SHORT).show();
@@ -804,16 +802,15 @@ public class Recogniser extends Activity {
 			String[] RecognizedStrokes = new String[params[0].size()];
 			// Set<String> libraryClassesKeys=Strokes.keySet(); //obtain the
 			// keys
-			synchronized(Strokes)
-			{
+			
 				for (int i = 0; i < params[0].size(); i++) {
 					double minValue = Double.MAX_VALUE;
 					String ClassRecognizedMin = null;
-					Iterator<String> key = Strokes.keySet().iterator();
+					Iterator<String> key = SynchronizedStroke.keySet().iterator();
 					while (key.hasNext()) {
 						String tempClass = key.next();
 						double score = DTWRecogniser.DTWDistance(params[0].get(i),
-								Strokes.get(tempClass));
+								SynchronizedStroke.get(tempClass));
 						if (minValue > score) {
 							minValue = score; // set as minimum score
 							ClassRecognizedMin = tempClass; // set as minimum Score
@@ -824,11 +821,11 @@ public class Recogniser extends Activity {
 					RecognizedStrokes[i] = ClassRecognizedMin;
 
 				}
-			}
+			
 			
 			mappedStrokesinput=RecognizedStrokes;
 			finalCharacterClass = LutMatcher.getValue(RecognizedStrokes); //obtain character class from combination of strokes
-
+			
 			// finalCharacterClass=RecognizedStrokes.toString();
 			return finalCharacterClass;
 		}
