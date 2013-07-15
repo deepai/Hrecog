@@ -50,15 +50,18 @@ public class Matcher {
 		mappedStrokesSequences = mappedStrokes;
 		InputCharacter = ip;
 		String[] keysInput = inputSequence.split(" "); //the obtained sequence of more than one strokes
-		//System.out.println("testsequences"+ keysInput.toString());
-		String debugsequence="";
+		
+		/*String debugsequence="";
 		for(String s:keysInput)
 		{
 			debugsequence+=s+" ";
 		}
-		Log.v("debugHWRECOGNISER","CharacterID="+CharacterID);
-		Log.v("debugHWRECOGNISER", "aftersplitting"+debugsequence);
-		Log.v("debugHWRECOGNISER","inputsequence="+inputSequence);
+		*/
+		
+		//Log.v("debugHWRECOGNISER","CharacterID="+CharacterID);
+		//Log.v("debugHWRECOGNISER", "aftersplitting"+debugsequence);
+		//Log.v("debugHWRECOGNISER","inputsequence="+inputSequence);
+		
 		ArrayList<String> Strokesname = new ArrayList<String>(); // to store all
 																	// the
 																	// strokes;
@@ -93,30 +96,22 @@ public class Matcher {
 					
 					String b = CharLUT.getStrokename(keysInput[i]); //Just Strokeclass from UserCorrected Stroke Seq
 					if ((a != null && b != null) && (a.equals(b))	&& a.length() != 0 && b.length() != 0) {
-						Log.v("debugHWRECOGNISER","building the reduced Stroke");
-						Log.v("debugHWRECOGNISER","output from main library="+a);
-						Log.v("debugHWRECOGNISER","output from inputStroke="+b);
+						//Log.v("debugHWRECOGNISER","building the reduced Stroke");
+						//Log.v("debugHWRECOGNISER","output from main library="+a);
+						//Log.v("debugHWRECOGNISER","output from inputStroke="+b);
 						Strokesname.add(key); // add to strokesname
 					}
 
 				}
 			}
-			Log.v("debugHWRECOGNISER",Strokesname.toString());
+			//Log.v("debugHWRECOGNISER",Strokesname.toString());
 		}
 		
 		new recogniser().execute(Strokesname); // execute the mapping
 
 	}
 
-	public ArrayList<String> NumStrokesSeq(String selChar, int usernumStroke) // return
-																				// the
-																				// number
-																				// of
-																				// Strokesequences
-																				// matching
-																				// user
-																				// made
-																				// Character
+	public ArrayList<String> NumStrokesSeq(String selChar, int usernumStroke) // return the number of StrokeSequences matching the Number of Strokes present in the UserInputCharacter
 	{
 		ArrayList<String> strokeseq = new ArrayList<String>();
 		StrokeSequence = LUTback.get(selChar);
@@ -128,10 +123,7 @@ public class Matcher {
 		return strokeseq;
 	}
 
-	public String getSingleStrokeName(String Character) // get the StrokeName
-														// corresponding to the
-														// character(//for
-														// single stroke)
+	public String getSingleStrokeName(String Character) //get Strokeclass corresponding to the characterclass for the single Stroke
 	{
 		ArrayList<String> Sequences = LUTback.get(Character);
 		String SingleStroke = null;
@@ -143,8 +135,7 @@ public class Matcher {
 		return SingleStroke;
 	}
 
-	public void LRUReplace(String strokeClass, float[] strokePoints,
-			HashMap<String, float[]> strokeMap, String sampleMatchName) {
+	public void LRUReplace(String strokeClass, float[] strokePoints,	HashMap<String, float[]> strokeMap, String sampleMatchName) {
 		boolean x_present = false;
 		int maxNum = 0, num = 0;
 		for (String key : strokeMap.keySet()) {
@@ -189,7 +180,7 @@ public class Matcher {
 				while (temp) {
 					for (String key : strokeMap.keySet()) {
 						temp = false;
-						if (key.contains(strokeClass) && !key.contains("_x")) {
+						if (strokeClass.equals(CharLUT.getStrokename(key)) && !key.contains("_x")) {
 							strokeMap.remove(key);
 							temp = true;
 							break;
@@ -205,8 +196,7 @@ public class Matcher {
 
 	}
 
-	public void LRUReplace(String strokeClass, float[] strokePoints,
-			HashMap<String, float[]> strokeMap) {
+	public void LRUReplace(String strokeClass, float[] strokePoints,HashMap<String, float[]> strokeMap) {
 		boolean x_present = false;
 		int maxNum = 0, num = 0;
 		for (String key : strokeMap.keySet()) {
@@ -241,13 +231,7 @@ public class Matcher {
 
 	}
 
-	class recogniser extends AsyncTask<ArrayList<String>, Void, String> // /to
-																		// perform
-																		// recognition
-																		// for
-																		// the
-																		// following
-																		// Stroke
+	class recogniser extends AsyncTask<ArrayList<String>, Void, String> //perform recognition for the inputCharacter against the reduced CharacterSet
 	{
 		int MAX_X = 5;
 
@@ -257,14 +241,9 @@ public class Matcher {
 			// params is the Stroke numbers to be mapped
 			String result;
 			String Strokesadded = "";
-			String debugsequence="";
-			for(String s:params[0])
-			{
-				debugsequence+=s+" ";
-			}
 			/*
-			Log.v("debugHWRECOGNISER","sequence of characters in reduced set");
-			Log.v("debugHWRECOGNISER", debugsequence);
+			//Log.v("debugHWRECOGNISER","sequence of characters in reduced set");
+			//Log.v("debugHWRECOGNISER", debugsequence);
 			*/
 				synchronized (Strokes) {
 					for (int i = 0; i < InputCharacter.size(); i++) {
@@ -287,7 +266,7 @@ public class Matcher {
 						}
 						if (!mappedStrokesSequences[i].equals(ClassRecognizedMin))
 						{
-							//Log.v("debugHWRECOGNISER",mappedStrokesSequences[i]+" "+ClassRecognizedMin);
+							////Log.v("debugHWRECOGNISER",mappedStrokesSequences[i]+" "+ClassRecognizedMin);
 							Strokesadded +=" " + ClassRecognizedMin; 
 							LRUReplace(
 									CharLUT.getStrokename(ClassRecognizedMin),InputCharacter.get(i), Strokes,ClassRecognizedMin); // add
