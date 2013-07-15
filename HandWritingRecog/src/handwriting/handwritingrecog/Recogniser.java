@@ -18,6 +18,7 @@ import Character_Stroke.Character_Stroke;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.telephony.SmsManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -58,7 +59,6 @@ public class Recogniser extends Activity {
 	/********************************************* Fields **************************************/
 	private static final String PREFS_NAME = "HandwritingRecogData";
 	HashMap<String, float[]> Strokes,Strokesbackup;
-	HashMap<String,float[]> SynchronizedStroke;
 	HashMap<String, ArrayList<String>> LUTback;
 	HashMap<String, String> uniVals;
 	HashMap<String, String> unicodeGrid;
@@ -105,9 +105,12 @@ public class Recogniser extends Activity {
 	protected void onStop() {
 		// TODO Auto-generated method stub
 		super.onStop();
-		Strokes=SynchronizedStroke;
-			utils.SaveFile.WriteFile("/mnt/sdcard/HWREcogfiles/Library.dat",Strokes);
+		//Strokes=Strokes;
+		    synchronized (Strokes) {
+		    	utils.SaveFile.WriteFile("/mnt/sdcard/HWREcogfiles/Library.dat",Strokes);
 
+			}
+			
 		
 		if(TextArea.getText().length()>0)
 		{
@@ -129,8 +132,11 @@ public class Recogniser extends Activity {
 		} else {
 			// load strokes
 			try {
+				synchronized (Strokes) {
 					Strokes = utils.Strokesloader.loadStrokes("/mnt/sdcard/HWREcogfiles/Library.dat");
-					SynchronizedStroke=(HashMap<String, float[]>) Collections.synchronizedMap(Strokes);
+				}
+					
+					//Strokes=(HashMap<String, float[]>) Collections.synchronizedMap(Strokes);
 				
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
@@ -402,7 +408,7 @@ public class Recogniser extends Activity {
 														// for unicode gridview
 			characterStrokes = (HashMap<String, ArrayList<Character_Stroke>>) intent.getSerializableExtra("LUTCharStrokes");
 			LUTback = (HashMap<String, ArrayList<String>>) intent.getSerializableExtra("LUTbackward");
-			SynchronizedStroke=(HashMap<String, float[]>) Collections.synchronizedMap(Strokes);
+			//Strokes=(HashMap<String, float[]>) Collections.synchronizedMap(Strokes);
 
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
@@ -410,7 +416,7 @@ public class Recogniser extends Activity {
 		}
 		/*********************************************************************************************************/
 		try {
-			mt = new Matcher(characterStrokes,SynchronizedStroke, this, LUTback);
+			mt = new Matcher(characterStrokes,Strokes, this, LUTback);
 			// Toast.makeText(context, "Success loading library files",
 			// Toast.LENGTH_SHORT).show();
 		} catch (Exception e1) {
@@ -626,24 +632,26 @@ public class Recogniser extends Activity {
 				 */
 				if (InputCharacter.size() == 1) // handle single Stroke
 				{
-					final String InputCharName = mt	.getSingleStrokeName(charactername);
+					final String InputCharName = mt	.getSingleStrokeName(charactername); //charactername
 					if (InputCharName != null) {
 						executor.execute(new Runnable() {
 
 							@Override
 							public void run() {
 								// TODO Auto-generated method stub
-								
+								synchronized (Strokes) {
+									
+							
 									double minimum_score=Double.MAX_VALUE;
 									String minStroke="";
 									
-									Iterator<String> itr=SynchronizedStroke.keySet().iterator();
+									Iterator<String> itr=Strokes.keySet().iterator();
 									while(itr.hasNext())
 									{
 										String s=itr.next();
 										if(InputCharName.equals(LutMatcher.getStrokename(s)))
 										{
-											double score=DTWRecogniser.DTWDistance(SynchronizedStroke.get(s),InputCharacter.get(0));
+											double score=DTWRecogniser.DTWDistance(Strokes.get(s),InputCharacter.get(0));
 											if(score<minimum_score)
 											{
 												score=minimum_score;
@@ -653,12 +661,14 @@ public class Recogniser extends Activity {
 									}
 									
 									
-										mt.LRUReplace(InputCharName,InputCharacter.get(0), SynchronizedStroke,minStroke);
-																
+										mt.LRUReplace(InputCharName,InputCharacter.get(0), Strokes,minStroke);
+										Log.v("debugHWRECOGNISER","SingleStroke");
+										Log.v("debugHWRECOGNISER",InputCharName);
+										Log.v("debugHWRECOGNISER",minStroke);
 									// SaveFile.WriteFile("/mnt/sdcard/HWREcogfiles/Library.dat",Strokes);
 									mt.errorcount++; //increase the count
 								
-								
+								}
 							}
 						});
 
@@ -797,20 +807,22 @@ public class Recogniser extends Activity {
 																		// the
 																		// Recognition
 																		// here
-
+			
+				
+			
 			String finalCharacterClass = null;
 			String[] RecognizedStrokes = new String[params[0].size()];
 			// Set<String> libraryClassesKeys=Strokes.keySet(); //obtain the
 			// keys
-			
+			synchronized (Strokes) {
 				for (int i = 0; i < params[0].size(); i++) {
 					double minValue = Double.MAX_VALUE;
 					String ClassRecognizedMin = null;
-					Iterator<String> key = SynchronizedStroke.keySet().iterator();
+					Iterator<String> key = Strokes.keySet().iterator();
 					while (key.hasNext()) {
 						String tempClass = key.next();
 						double score = DTWRecogniser.DTWDistance(params[0].get(i),
-								SynchronizedStroke.get(tempClass));
+								Strokes.get(tempClass));
 						if (minValue > score) {
 							minValue = score; // set as minimum score
 							ClassRecognizedMin = tempClass; // set as minimum Score
@@ -821,12 +833,14 @@ public class Recogniser extends Activity {
 					RecognizedStrokes[i] = ClassRecognizedMin;
 
 				}
+			}
 			
 			
 			mappedStrokesinput=RecognizedStrokes;
 			finalCharacterClass = LutMatcher.getValue(RecognizedStrokes); //obtain character class from combination of strokes
 			
 			// finalCharacterClass=RecognizedStrokes.toString();
+			
 			return finalCharacterClass;
 		}
 

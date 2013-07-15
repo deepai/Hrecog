@@ -58,6 +58,8 @@ public class CharLUT
 		{
 			if(Character.isDigit(temp.charAt(j))) //check if the character is a Digit
 				s.append(temp.charAt(j));
+			else
+				break;
 			j++;
 		}
 		return s.toString();
